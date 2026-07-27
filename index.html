@@ -91,6 +91,10 @@
     font-size:21px; font-weight:800; letter-spacing:-0.01em; white-space:nowrap;
     max-width:55vw; overflow:hidden; text-overflow:ellipsis; pointer-events:none;
   }
+  #screenBuilder .topbar h1{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    max-width:50vw; pointer-events:none;
+  }
   .logo-img{ width:auto; display:block; }
   .logo-light-img{ display:none; }
   [data-theme="light"] .logo-dark-img{ display:none; }
@@ -948,7 +952,9 @@
   <!-- ========== WORKOUT PROGRAM (CALENDAR) SCREEN ========== -->
   <div class="screen hidden" id="screenProgram">
     <div class="topbar">
-      <button class="textbtn" id="programBackBtn">Back</button>
+      <button class="textbtn icon-textbtn" id="programBackBtn" title="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
       <h1 style="font-size:17px;">Workout Program</h1>
       <span style="width:60px;"></span>
     </div>
@@ -2998,6 +3004,7 @@
       exercises = [];
     }
     renderTypeGrid();
+    renderTypeChipRow();
     renderTypeSettings();
     renderBodyPartGrid();
     renderExerciseList();
@@ -3082,9 +3089,11 @@
     if(currentType === "tabata"){
       html =
         '<div class="field-label">Tabata Settings</div>' +
-        '<div class="row3">' +
+        '<div class="row2">' +
           field("Work (sec)", "t_work", s.workSec, 5) +
           field("Rest (sec)", "t_rest", s.restSec, 5) +
+        '</div>' +
+        '<div class="row2">' +
           field("Rounds", "t_rounds", s.rounds, 1) +
         '</div>' +
         '<div class="helper-text">Each exercise below cycles through this many rounds before moving to the next exercise.</div>';
@@ -3099,9 +3108,11 @@
     } else if(currentType === "circuit"){
       html =
         '<div class="field-label">Circuit Settings</div>' +
-        '<div class="row3">' +
+        '<div class="row2">' +
           field("Rounds", "c_rounds", s.rounds, 1) +
           field("Transition (sec)", "c_transition", s.transitionSec, 5) +
+        '</div>' +
+        '<div class="row2">' +
           field("Rest btwn rounds (sec)", "c_restbetween", s.restBetween, 5) +
         '</div>' +
         '<div class="helper-text">Move through every station once per round, with a short transition between each. Rest happens after a full round.</div>';
