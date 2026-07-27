@@ -789,6 +789,33 @@
     </div>
   </div>
 
+  <div class="modal-overlay hidden" id="exerciseDetailModalOverlay">
+    <div class="modal-card">
+      <div id="exerciseDetailViewSection">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:10px;">
+          <div class="modal-title" id="exerciseDetailNameView" style="margin-bottom:0; text-align:left; flex:1;">Exercise Name</div>
+          <button class="builder-delete-btn" id="exerciseDetailEditBtn" title="Edit" style="color:var(--work); width:34px; height:34px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+        </div>
+        <p id="exerciseDetailDescView" style="color:var(--text-dim); font-size:14px; line-height:1.5; margin:0 0 16px 0;">Description</p>
+        <div class="modal-actions" style="margin-top:0;">
+          <button class="modal-btn-secondary" id="exerciseDetailCloseBtn" style="flex:1; margin-top:0;">Close</button>
+        </div>
+      </div>
+      <div id="exerciseDetailEditSection" class="hidden">
+        <div class="field-label" style="margin-top:0;">Name</div>
+        <input type="text" id="exerciseDetailNameInput" maxlength="40">
+        <div class="field-label">Description</div>
+        <textarea id="exerciseDetailDescInput" rows="3" style="width:100%; background:var(--surface); border:1px solid var(--line); color:var(--text); border-radius:12px; padding:13px 14px; font-size:14px; font-family:inherit; resize:vertical;" placeholder="One sentence describing the exercise..."></textarea>
+        <div class="modal-actions">
+          <button class="modal-btn-secondary" id="exerciseDetailCancelBtn">Cancel</button>
+          <button class="modal-btn-primary" id="exerciseDetailSaveBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ========== RANDOM WORKOUT SCREEN ========== -->
   <div class="screen hidden" id="screenRandom">
     <div class="topbar">
@@ -1396,20 +1423,73 @@
 
   var EXERCISE_LIBRARY_KEY = "setwork_exercise_library_v1";
   var DEFAULT_EXERCISE_LIBRARY = [
-    "Push-ups","Squats","Lunges","Plank","Burpees","Mountain Climbers","Jumping Jacks",
-    "Bench Press","Deadlift","Back Squat","Front Squat","Overhead Press","Bent-Over Row",
-    "Pull-ups","Chin-ups","Lat Pulldown","Seated Row","Bicep Curls","Tricep Dips","Tricep Extension",
-    "Kettlebell Swings","Goblet Squat","Box Jumps","Wall Balls","Sit-ups","Russian Twists",
-    "Hip Thrusts","Glute Bridge","Leg Press","Leg Curl","Leg Extension","Calf Raises",
-    "Farmers Carry","Sled Push","Sled Pull","Rowing Machine","Assault Bike","Jump Rope",
-    "Battle Ropes","Face Pulls","Lateral Raises","Shoulder Press","Dumbbell Fly","Incline Bench Press",
-    "Romanian Deadlift","Bulgarian Split Squat","Step-ups","High Knees","Skull Crushers","Hammer Curls",
-    "Arnold Press","Cable Crossover","Hip Abduction","Hip Adduction","Good Mornings","Hyperextensions"
+    { name:"Push-ups", description:"A bodyweight exercise where you lower and raise your body using your arms, building chest, shoulder, and tricep strength." },
+    { name:"Squats", description:"A lower-body exercise where you bend your knees and hips to lower into a seated position and stand back up, building the quads, glutes, and hamstrings." },
+    { name:"Lunges", description:"A single-leg exercise where you step forward or backward and lower your hips until both knees are bent, targeting the quads, glutes, and hamstrings." },
+    { name:"Plank", description:"An isometric core hold supported on your forearms and toes, building core and shoulder stability." },
+    { name:"Burpees", description:"A full-body exercise combining a squat, plank, push-up, and jump, used to build strength and conditioning." },
+    { name:"Mountain Climbers", description:"A dynamic core exercise performed in a plank position while driving your knees toward your chest in a running motion." },
+    { name:"Jumping Jacks", description:"A full-body cardio exercise where you jump while spreading your legs and raising your arms overhead." },
+    { name:"Bench Press", description:"A barbell or dumbbell exercise performed lying on a bench, pressing the weight upward to build chest, shoulder, and tricep strength." },
+    { name:"Deadlift", description:"A compound lift where you hinge at the hips to lift a loaded barbell off the floor, targeting the back, glutes, and hamstrings." },
+    { name:"Back Squat", description:"A barbell squat performed with the bar resting across the upper back, building lower-body strength and power." },
+    { name:"Front Squat", description:"A barbell squat performed with the bar racked across the front of the shoulders, emphasizing the quads and core." },
+    { name:"Overhead Press", description:"A standing press that pushes a barbell or dumbbells from shoulder height to overhead, building shoulder and tricep strength." },
+    { name:"Bent-Over Row", description:"A hinged rowing movement where you pull a barbell or dumbbells toward your torso, targeting the back and biceps." },
+    { name:"Pull-ups", description:"An upper-body pulling exercise performed on a bar with an overhand grip, building back and bicep strength." },
+    { name:"Chin-ups", description:"Similar to a pull-up but performed with an underhand grip, emphasizing the biceps along with the back." },
+    { name:"Lat Pulldown", description:"A cable machine exercise where you pull a bar down toward your chest, targeting the lats and biceps." },
+    { name:"Seated Row", description:"A cable or machine exercise where you pull a handle toward your torso while seated, building back thickness and posture strength." },
+    { name:"Bicep Curls", description:"An isolation exercise where you curl a weight upward by bending the elbow, targeting the biceps." },
+    { name:"Tricep Dips", description:"An exercise performed on parallel bars or a bench where you lower and raise your body using your arms, targeting the triceps." },
+    { name:"Tricep Extension", description:"An isolation movement where you extend the elbow against resistance to target the triceps." },
+    { name:"Kettlebell Swings", description:"A hip-hinge exercise where you swing a kettlebell between your legs and up to chest height using explosive hip drive." },
+    { name:"Goblet Squat", description:"A squat variation performed while holding a single dumbbell or kettlebell at chest height." },
+    { name:"Box Jumps", description:"An explosive exercise where you jump from the ground onto an elevated box, building power in the legs." },
+    { name:"Wall Balls", description:"An exercise where you squat and throw a weighted ball up to a target on a wall, combining strength and conditioning." },
+    { name:"Sit-ups", description:"A core exercise where you curl your torso up from lying down to a seated position." },
+    { name:"Russian Twists", description:"A rotational core exercise performed seated, twisting a weight or the torso from side to side." },
+    { name:"Hip Thrusts", description:"A glute-focused exercise where you drive your hips upward with your upper back resting on a bench, often loaded with a barbell." },
+    { name:"Glute Bridge", description:"A bodyweight version of the hip thrust performed lying on the floor, lifting the hips to engage the glutes." },
+    { name:"Leg Press", description:"A machine exercise where you push a weighted platform away using your legs, targeting the quads, glutes, and hamstrings." },
+    { name:"Leg Curl", description:"A machine exercise that isolates the hamstrings by curling a weighted pad toward the glutes." },
+    { name:"Leg Extension", description:"A machine exercise that isolates the quads by extending the knees against resistance." },
+    { name:"Calf Raises", description:"An exercise where you rise onto your toes to target the calf muscles, often performed with added weight." },
+    { name:"Farmers Carry", description:"A loaded carry exercise where you walk while holding a heavy weight in each hand, building grip strength and full-body stability." },
+    { name:"Sled Push", description:"A conditioning exercise where you push a weighted sled across a distance, building leg drive and power." },
+    { name:"Sled Pull", description:"Similar to the sled push, but performed by pulling the sled using a harness or rope." },
+    { name:"Rowing Machine", description:"A cardio machine exercise that simulates rowing, working the legs, back, and arms together." },
+    { name:"Assault Bike", description:"A stationary bike using both arm and leg movement to provide a high-intensity cardio workout." },
+    { name:"Jump Rope", description:"A cardio exercise using a rope swung under the feet while jumping, building coordination and conditioning." },
+    { name:"Battle Ropes", description:"A conditioning exercise where you create waves in thick ropes anchored at one end, building upper-body endurance." },
+    { name:"Face Pulls", description:"A cable exercise where you pull a rope toward your face, targeting the rear delts and upper back for shoulder health." },
+    { name:"Lateral Raises", description:"An isolation exercise where you raise dumbbells out to the sides to target the shoulders." },
+    { name:"Shoulder Press", description:"A pressing movement performed seated or standing that pushes weight overhead to build shoulder strength." },
+    { name:"Dumbbell Fly", description:"A chest isolation exercise performed lying on a bench, opening and closing the arms in an arcing motion." },
+    { name:"Incline Bench Press", description:"A bench press performed on an inclined bench, emphasizing the upper chest." },
+    { name:"Romanian Deadlift", description:"A hip-hinge variation of the deadlift performed with a slight knee bend, emphasizing the hamstrings and glutes." },
+    { name:"Bulgarian Split Squat", description:"A single-leg squat performed with the rear foot elevated on a bench, building unilateral leg strength." },
+    { name:"Step-ups", description:"An exercise where you step up onto an elevated platform one leg at a time, building leg strength and balance." },
+    { name:"High Knees", description:"A cardio drill where you run in place while driving your knees up toward your chest." },
+    { name:"Skull Crushers", description:"A tricep isolation exercise performed lying down, lowering a weight toward the forehead and extending back up." },
+    { name:"Hammer Curls", description:"A bicep curl variation performed with a neutral, palms-facing-in grip that also engages the forearms." },
+    { name:"Arnold Press", description:"A shoulder press variation that adds a rotation of the palms from facing you to facing forward as you press." },
+    { name:"Cable Crossover", description:"A chest isolation exercise using cables to bring the arms together in front of the body." },
+    { name:"Hip Abduction", description:"A machine or band exercise that moves the leg outward away from the body, targeting the outer hips and glutes." },
+    { name:"Hip Adduction", description:"A machine or band exercise that moves the leg inward toward the body, targeting the inner thighs." },
+    { name:"Good Mornings", description:"A hip-hinge exercise performed with a barbell on the back, bending forward at the hips to target the hamstrings and lower back." },
+    { name:"Hyperextensions", description:"A back exercise performed on a hyperextension bench, raising the torso against gravity to strengthen the lower back and glutes." }
   ];
   function loadExerciseLibrary(){
     try{
       var raw = localStorage.getItem(EXERCISE_LIBRARY_KEY);
-      if(raw) return JSON.parse(raw);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        // Migrate legacy plain-string format to {name, description} objects
+        return parsed.map(function(item){
+          return (typeof item === "string") ? { name:item, description:"" } : item;
+        });
+      }
     }catch(e){}
     return DEFAULT_EXERCISE_LIBRARY.slice();
   }
@@ -1417,12 +1497,15 @@
     try{ localStorage.setItem(EXERCISE_LIBRARY_KEY, JSON.stringify(exerciseLibrary)); }catch(e){}
   }
   var exerciseLibrary = loadExerciseLibrary();
+  function findLibraryEntry(name){
+    name = (name || "").trim().toLowerCase();
+    return exerciseLibrary.find(function(e){ return e.name.toLowerCase() === name; });
+  }
   function addToLibraryIfNew(name){
     name = (name || "").trim();
     if(!name) return;
-    var exists = exerciseLibrary.some(function(n){ return n.toLowerCase() === name.toLowerCase(); });
-    if(!exists){
-      exerciseLibrary.push(name);
+    if(!findLibraryEntry(name)){
+      exerciseLibrary.push({ name: name, description: "" });
       saveExerciseLibrary();
     }
   }
@@ -1436,14 +1519,14 @@
   function showExerciseSuggestions(inputEl, ex){
     var query = inputEl.value.trim().toLowerCase();
     if(!query){ hideExerciseSuggestions(); return; }
-    var matches = exerciseLibrary.filter(function(n){
-      return n.toLowerCase().indexOf(query) !== -1;
+    var matches = exerciseLibrary.filter(function(e){
+      return e.name.toLowerCase().indexOf(query) !== -1;
     }).slice(0, 6);
     if(matches.length === 0){ hideExerciseSuggestions(); return; }
     activeSuggestInput = inputEl;
     activeSuggestEx = ex;
-    exerciseSuggestBox.innerHTML = matches.map(function(n){
-      return '<div class="exercise-suggest-item">' + escapeHtml(n) + '</div>';
+    exerciseSuggestBox.innerHTML = matches.map(function(e){
+      return '<div class="exercise-suggest-item">' + escapeHtml(e.name) + '</div>';
     }).join("");
     var rect = inputEl.getBoundingClientRect();
     exerciseSuggestBox.style.left = rect.left + "px";
@@ -1911,29 +1994,35 @@
     if(!wrap) return;
     var list = exerciseLibrary.slice();
     if(exerciseSearchQuery){
-      list = list.filter(function(n){ return n.toLowerCase().indexOf(exerciseSearchQuery) !== -1; });
+      list = list.filter(function(e){ return e.name.toLowerCase().indexOf(exerciseSearchQuery) !== -1; });
     }
-    list.sort(function(a,b){ return a.localeCompare(b); });
+    list.sort(function(a,b){ return a.name.localeCompare(b.name); });
     if(list.length === 0){
       wrap.innerHTML = '<div class="empty-state" style="margin-top:40px;"><div class="big">🔍</div><p>No exercises found.</p></div>';
       return;
     }
     var groups = {};
-    list.forEach(function(name){
-      var letter = name.charAt(0).toUpperCase();
+    list.forEach(function(e){
+      var letter = e.name.charAt(0).toUpperCase();
       if(!/[A-Z]/.test(letter)) letter = "#";
       if(!groups[letter]) groups[letter] = [];
-      groups[letter].push(name);
+      groups[letter].push(e);
     });
     var letters = Object.keys(groups).sort();
     var html = "";
     letters.forEach(function(letter){
       html += '<div class="exercise-section-label">' + letter + '</div>';
-      groups[letter].forEach(function(name){
-        html += '<div class="exercise-row">' + escapeHtml(name) + '</div>';
+      groups[letter].forEach(function(e){
+        html += '<div class="exercise-row" data-name="' + escapeHtml(e.name) + '" style="cursor:pointer;">' +
+          '<span>' + escapeHtml(e.name) + '</span>' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; color:var(--text-dim); flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>' +
+        '</div>';
       });
     });
     wrap.innerHTML = html;
+    Array.prototype.forEach.call(wrap.querySelectorAll(".exercise-row"), function(row){
+      row.addEventListener("click", function(){ openExerciseDetail(row.dataset.name); });
+    });
   }
 
   exerciseSearchToggleBtn.addEventListener("click", function(){
@@ -1983,6 +2072,54 @@
     if(!name) return;
     addToLibraryIfNew(name);
     exerciseModalOverlay.classList.add("hidden");
+    renderExercisesScreen();
+  });
+
+  var exerciseDetailModalOverlay = document.getElementById("exerciseDetailModalOverlay");
+  var exerciseDetailViewSection = document.getElementById("exerciseDetailViewSection");
+  var exerciseDetailEditSection = document.getElementById("exerciseDetailEditSection");
+  var exerciseDetailNameView = document.getElementById("exerciseDetailNameView");
+  var exerciseDetailDescView = document.getElementById("exerciseDetailDescView");
+  var exerciseDetailNameInput = document.getElementById("exerciseDetailNameInput");
+  var exerciseDetailDescInput = document.getElementById("exerciseDetailDescInput");
+  var currentDetailOriginalName = null;
+
+  function openExerciseDetail(name){
+    var entry = findLibraryEntry(name);
+    if(!entry) return;
+    currentDetailOriginalName = entry.name;
+    exerciseDetailNameView.textContent = entry.name;
+    exerciseDetailDescView.textContent = entry.description && entry.description.trim()
+      ? entry.description
+      : "No description yet — tap the pencil to add one.";
+    exerciseDetailViewSection.classList.remove("hidden");
+    exerciseDetailEditSection.classList.add("hidden");
+    exerciseDetailModalOverlay.classList.remove("hidden");
+  }
+  document.getElementById("exerciseDetailCloseBtn").addEventListener("click", function(){
+    exerciseDetailModalOverlay.classList.add("hidden");
+  });
+  document.getElementById("exerciseDetailEditBtn").addEventListener("click", function(){
+    var entry = findLibraryEntry(currentDetailOriginalName);
+    if(!entry) return;
+    exerciseDetailNameInput.value = entry.name;
+    exerciseDetailDescInput.value = entry.description || "";
+    exerciseDetailViewSection.classList.add("hidden");
+    exerciseDetailEditSection.classList.remove("hidden");
+    exerciseDetailNameInput.focus();
+  });
+  document.getElementById("exerciseDetailCancelBtn").addEventListener("click", function(){
+    exerciseDetailModalOverlay.classList.add("hidden");
+  });
+  document.getElementById("exerciseDetailSaveBtn").addEventListener("click", function(){
+    var entry = findLibraryEntry(currentDetailOriginalName);
+    if(!entry) return;
+    var newName = exerciseDetailNameInput.value.trim();
+    if(!newName) return;
+    entry.name = newName;
+    entry.description = exerciseDetailDescInput.value.trim();
+    saveExerciseLibrary();
+    exerciseDetailModalOverlay.classList.add("hidden");
     renderExercisesScreen();
   });
 
