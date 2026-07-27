@@ -3535,6 +3535,7 @@
   var lastTick = null;
   var activeWorkout = null;
   var workoutQueue = null;
+  var workoutFinished = false;
   var queueRecordedIds = {};
   var queueCurrentWorkout = null;
 
@@ -3572,6 +3573,7 @@
 
   function startWorkout(w){
     workoutQueue = null;
+    workoutFinished = false;
     activeWorkout = w;
     intervals = generateIntervals(w);
     currentIndex = 0;
@@ -3590,6 +3592,7 @@
 
   function startWorkoutQueue(list){
     workoutQueue = list;
+    workoutFinished = false;
     queueRecordedIds = {};
     queueCurrentWorkout = list[0];
     var combined = [];
@@ -3707,6 +3710,11 @@
     remaining -= dt;
     if(remaining <= 0){
       advanceInterval();
+      // advanceInterval() may have called finishWorkout(), which stops the engine
+      // (rafId becomes null). If so, stop here instead of rescheduling another
+      // frame — otherwise the "past the end" check keeps re-triggering forever,
+      // logging a duplicate history entry on every single frame.
+      if(rafId === null) return;
     } else {
       timeBigEl.textContent = Math.ceil(remaining);
       updateRing(remaining, iv.duration);
@@ -3822,6 +3830,8 @@
   }
 
   function finishWorkout(){
+    if(workoutFinished) return;
+    workoutFinished = true;
     stopTimerEngine();
     beepDone();
     if(workoutQueue){
@@ -3853,6 +3863,32 @@
   }
 
   /* ===================== INIT ===================== */
+  // One-time repair for a fixed bug: a timer-loop issue could log the same
+  // completed workout dozens or hundreds of times in a row within seconds of
+  // each other. Collapse any such run down to a single entry. A 10-minute
+  // window is generous enough to never merge two genuinely separate sessions
+  // of the same workout done the same day.
+  (function repairDuplicateHistoryFromTimerBug(){
+    if(history.length < 2) return;
+    var sorted = history.slice().sort(function(a,b){
+      return new Date(a.completedAt) - new Date(b.completedAt);
+    });
+    var kept = [];
+    var changed = false;
+    sorted.forEach(function(entry){
+      var isDup = kept.some(function(k){
+        return k.workoutId === entry.workoutId &&
+          Math.abs(new Date(k.completedAt) - new Date(entry.completedAt)) < 10*60*1000;
+      });
+      if(isDup){ changed = true; return; }
+      kept.push(entry);
+    });
+    if(changed){
+      history = kept;
+      saveHistoryList();
+    }
+  })();
+
   renderWorkoutsList();
   renderHomeScreen();
   applyWorkoutContext();
