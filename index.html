@@ -35,6 +35,7 @@
     --shadow-card: 0 10px 20px -12px rgba(0,0,0,0.5);
     --shadow-glow: 0 8px 24px -6px rgba(77,210,255,0.45), 0 4px 12px -4px rgba(47,111,224,0.4);
     --shadow-ring: drop-shadow(0 0 16px rgba(77,210,255,0.45)) drop-shadow(0 0 6px rgba(47,111,224,0.4));
+    --heart-color: #ffffff;
   }
   [data-theme="light"]{
     --bg: #ffffff;
@@ -62,6 +63,7 @@
     --shadow-card: 0 10px 20px -12px rgba(15,23,42,0.15);
     --shadow-glow: 0 8px 24px -6px rgba(13,132,163,0.35), 0 4px 12px -4px rgba(29,78,216,0.3);
     --shadow-ring: drop-shadow(0 0 14px rgba(13,132,163,0.3)) drop-shadow(0 0 5px rgba(29,78,216,0.25));
+    --heart-color: #1f6fd6;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
   html,body{
@@ -212,6 +214,17 @@
   #filterBar .filter-chip:not(.active){
     background:var(--surface); border-color:var(--line); color:var(--text-dim);
   }
+  #filterBar .filter-chip.active{ color:#fff; border-color:transparent; box-shadow:var(--shadow-glow); }
+  #filterBar .filter-chip.tag-all.active{ background:var(--grad); }
+  #filterBar .filter-chip.tag-tabata.active{ background:linear-gradient(135deg,#1d4ed8,var(--work)); }
+  #filterBar .filter-chip.tag-hiit.active{ background:linear-gradient(135deg,#c2540a,var(--rest)); }
+  #filterBar .filter-chip.tag-circuit.active{ background:linear-gradient(135deg,#0c6e8a,var(--circuit)); }
+  #filterBar .filter-chip.tag-timed.active{ background:linear-gradient(135deg,#475569,#94a3b8); }
+  #filterBar .filter-chip.tag-emom.active{ background:linear-gradient(135deg,#92400e,var(--prep)); }
+  #filterBar .filter-chip.tag-amrap.active{ background:linear-gradient(135deg,#b91c1c,var(--danger)); }
+  #filterBar .filter-chip.tag-warmup.active{ background:linear-gradient(135deg,#15803d,var(--warmup)); }
+  #filterBar .filter-chip.tag-hyrox.active{ background:linear-gradient(135deg,#b8380a,var(--hyrox)); }
+  #filterBar .filter-chip.tag-weightlifting.active{ background:linear-gradient(135deg,#475569,var(--weightlifting)); }
 
   .topbar-actions-wrap{ position:relative; flex-shrink:0; }
   .iconbtn-settings{ background:var(--surface); border-color:var(--line); color:var(--text-dim); }
@@ -291,7 +304,7 @@
   .workout-card{
     background:var(--surface); border:1px solid var(--line); border-radius:18px;
     padding:14px 16px 12px 16px; margin-bottom:14px;
-    display:flex; flex-direction:column; gap:2px; cursor:pointer;
+    display:flex; flex-direction:column; gap:2px; cursor:pointer; position:relative;
     box-shadow:var(--shadow-card); transition:transform 0.12s ease;
   }
   .workout-card:active{ transform:scale(0.98); }
@@ -317,6 +330,10 @@
   .tag-all{ background:rgba(255,255,255,0.10); color:var(--text); }
 
   .tag-bodypart{ background:var(--text-dim); color:var(--surface); }
+  #historyBodyPartBar .filter-chip{ opacity:1; }
+  #historyBodyPartBar .filter-chip:not(.active){
+    background:var(--surface); border-color:var(--line); color:var(--text-dim);
+  }
   #historyBodyPartBar .filter-chip.active{
     background:var(--grad); color:#fff; border-color:transparent; box-shadow:var(--shadow-glow);
   }
@@ -338,7 +355,7 @@
   .card-bodyparts-line{ font-size:12.5px; color:#7dd3fc; font-weight:700; margin-top:3px; }
 
   .workout-card .play{
-    background:var(--grad); border:none; color:#fff; box-shadow:var(--shadow-glow);
+    background:var(--grad-dark); border:none; color:#fff; box-shadow:0 6px 16px -6px rgba(0,0,0,0.5);
     width:44px; height:44px; border-radius:14px; font-size:16px; font-weight:900;
     display:flex; align-items:center; justify-content:center; flex-shrink:0;
   }
@@ -348,7 +365,12 @@
     position:fixed; right:22px; bottom: calc(76px + env(safe-area-inset-bottom));
     background:var(--work); color:#fff; border:none;
     width:58px; height:58px; border-radius:20px; font-size:28px; font-weight:800;
-    box-shadow:0 8px 24px rgba(77,166,255,0.25); z-index:60;
+    box-shadow:0 14px 32px -6px rgba(0,0,0,0.5); z-index:60;
+    animation: fab-float 2.8s ease-in-out infinite;
+  }
+  @keyframes fab-float{
+    0%, 100%{ transform:translateY(0); }
+    50%{ transform:translateY(-6px); }
   }
 
   /* ---------- builder ---------- */
@@ -660,13 +682,38 @@
   .settings-row-label{ flex:1; }
   .settings-row-value{ color:var(--text-dim); font-size:14px; font-weight:700; }
 
+  /* ===================== FAVORITES ===================== */
+  .heart-btn{
+    background:none; border:none; color:var(--heart-color); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; padding:4px;
+  }
+  .heart-btn svg{ width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; }
+  .heart-btn.favorited svg{ fill:currentColor; stroke:currentColor; }
+  .heart-btn:active{ transform:scale(0.85); }
+  @keyframes heart-pop{
+    0%{ transform:scale(1); }
+    30%{ transform:scale(1.5); }
+    55%{ transform:scale(0.85); }
+    75%{ transform:scale(1.18); }
+    100%{ transform:scale(1); }
+  }
+  .heart-btn.animate-pop svg{ animation: heart-pop 0.5s ease; }
+  .finish-favorite-btn{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--surface-2); border:1px solid var(--line); color:var(--text);
+    border-radius:14px; padding:13px; font-size:15px; font-weight:800; width:100%;
+    margin-top:12px;
+  }
+  .finish-favorite-btn .heart-btn{ padding:0; }
+  .finish-favorite-btn.favorited{ color:var(--heart-color); border-color:currentColor; }
+
   /* ===================== V2: GRADIENT + GLOW POLISH ===================== */
   .primary-btn{ background:var(--grad) !important; box-shadow:var(--shadow-glow); border:none !important; }
-  .fab{ background:var(--grad) !important; box-shadow:var(--shadow-glow); }
+  .fab{ background:var(--grad) !important; box-shadow:var(--shadow-glow), 0 14px 32px -6px rgba(0,0,0,0.55) !important; }
   .fab-fire{
     left:22px; right:auto;
     background:linear-gradient(135deg,#c96a10,#ff9d3d) !important;
-    box-shadow:0 8px 24px -4px rgba(255,157,61,0.45) !important;
+    box-shadow:0 8px 24px -4px rgba(255,157,61,0.45), 0 14px 32px -6px rgba(0,0,0,0.55) !important;
   }
   .ctrl-btn.big{ background:var(--grad) !important; box-shadow:var(--shadow-glow); border:none !important; }
   .ring-fg{ filter:var(--shadow-ring); }
@@ -794,6 +841,7 @@
       <div id="exerciseDetailViewSection">
         <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:10px;">
           <div class="modal-title" id="exerciseDetailNameView" style="margin-bottom:0; text-align:left; flex:1;">Exercise Name</div>
+          <button class="heart-btn" id="exerciseDetailHeartBtn" title="Favorite"></button>
           <button class="builder-delete-btn" id="exerciseDetailEditBtn" title="Edit" style="color:var(--work); width:34px; height:34px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           </button>
@@ -990,6 +1038,45 @@
     </div>
   </div>
 
+  <div class="modal-overlay hidden" id="recurrenceModalOverlay">
+    <div class="modal-card">
+      <div class="modal-title">Repeat This Workout?</div>
+      <div class="chip-row" id="recurrenceModeRow" style="margin-bottom:16px;">
+        <button class="chip active" data-mode="once">Just This Day</button>
+        <button class="chip" data-mode="weekly">Repeat Weekly</button>
+      </div>
+      <div id="recurrenceWeekdaysWrap" class="hidden">
+        <div class="field-label" style="margin-top:0;">Repeats on</div>
+        <div class="chip-row" id="recurrenceWeekdayRow">
+          <button class="chip" data-dow="0">Sun</button>
+          <button class="chip" data-dow="1">Mon</button>
+          <button class="chip" data-dow="2">Tue</button>
+          <button class="chip" data-dow="3">Wed</button>
+          <button class="chip" data-dow="4">Thu</button>
+          <button class="chip" data-dow="5">Fri</button>
+          <button class="chip" data-dow="6">Sat</button>
+        </div>
+        <p class="helper-text">Repeats every week on the selected day(s) for the next year.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn-secondary" id="recurrenceCancelBtn">Cancel</button>
+        <button class="modal-btn-primary" id="recurrenceConfirmBtn">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="deleteRecurringModalOverlay">
+    <div class="modal-card">
+      <div class="modal-title">Delete Recurring Workout</div>
+      <p class="helper-text" style="text-align:center; margin:0 0 16px 0;">This workout repeats. What would you like to remove?</p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button class="modal-btn-primary" id="deleteRecurringThisBtn" style="width:100%;">Just This Day</button>
+        <button class="modal-btn-secondary" id="deleteRecurringSeriesBtn" style="width:100%; color:var(--danger);">Entire Series</button>
+        <button class="textbtn" id="deleteRecurringCancelBtn" style="width:100%; text-align:center; justify-content:center;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ========== TODAY'S WORKOUT PROGRAM SCREEN ========== -->
   <div class="screen hidden" id="screenTodayProgram">
     <div class="topbar">
@@ -1021,6 +1108,7 @@
       </button>
       <h1 style="font-size:17px;">Preview</h1>
       <div style="display:flex; align-items:center; gap:8px;">
+        <button class="heart-btn" id="previewHeartBtn" title="Favorite"></button>
         <button class="iconbtn" id="previewDuplicateBtn" title="Duplicate" style="width:34px; height:34px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
         </button>
@@ -1266,20 +1354,41 @@
   function saveSchedule(){
     try{ localStorage.setItem(SCHEDULE_KEY, JSON.stringify(schedule)); }catch(e){}
   }
-  var schedule = loadSchedule(); // [{ id, workoutId, date:"YYYY-MM-DD" }]
+  var schedule = loadSchedule(); // [{ id, workoutId, date:"YYYY-MM-DD", seriesId }] — seriesId is null for one-time entries, shared across all occurrences of a recurring series
 
   function dateKey(d){
     var yr = d.getFullYear(), mo = d.getMonth()+1, dy = d.getDate();
     return yr + "-" + (mo<10?"0"+mo:mo) + "-" + (dy<10?"0"+dy:dy);
   }
   function todayKey(){ return dateKey(new Date()); }
+  function parseDateKey(dk){
+    var parts = dk.split("-").map(Number);
+    return new Date(parts[0], parts[1]-1, parts[2]);
+  }
 
-  // A scheduled entry counts as completed if history has an entry for that
-  // workout whose completion date matches the scheduled date.
+  // A scheduled entry counts as completed if it's been explicitly marked done
+  // (set the moment its workout finishes — see markScheduleCompletedForToday),
+  // or, as a fallback for entries predating that flag, if History independently
+  // shows the same workout completed on the same date.
   function isScheduleCompleted(sched){
+    if(sched.completed) return true;
     return history.some(function(h){
       return h.workoutId === sched.workoutId && dateKey(new Date(h.completedAt)) === sched.date;
     });
+  }
+  // Explicitly ties a just-completed workout to any of today's scheduled
+  // occurrences of it, so "Up Next" / "Today's Program" drop it immediately
+  // and reliably, without depending on re-deriving it from History each time.
+  function markScheduleCompletedForToday(workoutId){
+    var today = todayKey();
+    var changed = false;
+    schedule.forEach(function(s){
+      if(s.workoutId === workoutId && s.date === today && !s.completed){
+        s.completed = true;
+        changed = true;
+      }
+    });
+    if(changed) saveSchedule();
   }
   function getWorkoutById(id){
     return workouts.find(function(w){ return w.id === id; });
@@ -1381,20 +1490,57 @@
       var w = getWorkoutById(s.workoutId);
       if(!w) return "";
       return '<div class="ex-row" data-sched-id="' + s.id + '">' +
-        '<span style="flex:1;">' + escapeHtml(w.name) + '</span>' +
+        '<span style="flex:1;">' + escapeHtml(w.name) + (s.seriesId ? ' <span style="color:var(--text-dim); font-weight:600; font-size:12px;">&middot; repeats</span>' : '') + '</span>' +
         '<button class="remove-sched-btn" data-sched-id="' + s.id + '">✕</button>' +
       '</div>';
     }).join("");
     Array.prototype.forEach.call(list.querySelectorAll(".remove-sched-btn"), function(btn){
       btn.addEventListener("click", function(){
-        schedule = schedule.filter(function(s){ return s.id !== btn.dataset.schedId; });
-        saveSchedule();
-        renderDayDetailList();
-        renderCalendar();
-        renderHomeScreen();
+        var entry = schedule.find(function(s){ return s.id === btn.dataset.schedId; });
+        if(!entry) return;
+        if(entry.seriesId){
+          openDeleteRecurringModal(entry);
+        } else {
+          schedule = schedule.filter(function(s){ return s.id !== entry.id; });
+          saveSchedule();
+          renderDayDetailList();
+          renderCalendar();
+          renderHomeScreen();
+        }
       });
     });
   }
+
+  var pendingDeleteEntry = null;
+  function openDeleteRecurringModal(entry){
+    pendingDeleteEntry = entry;
+    document.getElementById("deleteRecurringModalOverlay").classList.remove("hidden");
+  }
+  document.getElementById("deleteRecurringCancelBtn").addEventListener("click", function(){
+    pendingDeleteEntry = null;
+    document.getElementById("deleteRecurringModalOverlay").classList.add("hidden");
+  });
+  document.getElementById("deleteRecurringThisBtn").addEventListener("click", function(){
+    if(!pendingDeleteEntry) return;
+    schedule = schedule.filter(function(s){ return s.id !== pendingDeleteEntry.id; });
+    saveSchedule();
+    pendingDeleteEntry = null;
+    document.getElementById("deleteRecurringModalOverlay").classList.add("hidden");
+    renderDayDetailList();
+    renderCalendar();
+    renderHomeScreen();
+  });
+  document.getElementById("deleteRecurringSeriesBtn").addEventListener("click", function(){
+    if(!pendingDeleteEntry) return;
+    var seriesId = pendingDeleteEntry.seriesId;
+    schedule = schedule.filter(function(s){ return s.seriesId !== seriesId; });
+    saveSchedule();
+    pendingDeleteEntry = null;
+    document.getElementById("deleteRecurringModalOverlay").classList.add("hidden");
+    renderDayDetailList();
+    renderCalendar();
+    renderHomeScreen();
+  });
 
   document.getElementById("dayDetailCloseBtn").addEventListener("click", function(){
     document.getElementById("dayDetailModalOverlay").classList.add("hidden");
@@ -1405,6 +1551,74 @@
   });
   document.getElementById("workoutPickerCancelBtn").addEventListener("click", function(){
     document.getElementById("workoutPickerModalOverlay").classList.add("hidden");
+  });
+
+  /* ===================== RECURRENCE PICKER ===================== */
+  var pendingRecurrenceWorkoutId = null;
+  var pendingRecurrenceDate = null;
+  var recurrenceMode = "once";
+  var recurrenceSelectedDows = [];
+
+  function openRecurrenceModal(workoutId, dk){
+    pendingRecurrenceWorkoutId = workoutId;
+    pendingRecurrenceDate = dk;
+    recurrenceMode = "once";
+    recurrenceSelectedDows = [parseDateKey(dk).getDay()];
+    renderRecurrenceModal();
+    document.getElementById("recurrenceModalOverlay").classList.remove("hidden");
+  }
+  function renderRecurrenceModal(){
+    Array.prototype.forEach.call(document.querySelectorAll("#recurrenceModeRow .chip"), function(c){
+      c.classList.toggle("active", c.dataset.mode === recurrenceMode);
+    });
+    document.getElementById("recurrenceWeekdaysWrap").classList.toggle("hidden", recurrenceMode !== "weekly");
+    Array.prototype.forEach.call(document.querySelectorAll("#recurrenceWeekdayRow .chip"), function(c){
+      c.classList.toggle("active", recurrenceSelectedDows.indexOf(parseInt(c.dataset.dow,10)) !== -1);
+    });
+  }
+  document.getElementById("recurrenceModeRow").addEventListener("click", function(e){
+    var btn = e.target.closest(".chip");
+    if(!btn) return;
+    recurrenceMode = btn.dataset.mode;
+    renderRecurrenceModal();
+  });
+  document.getElementById("recurrenceWeekdayRow").addEventListener("click", function(e){
+    var btn = e.target.closest(".chip");
+    if(!btn) return;
+    var dow = parseInt(btn.dataset.dow,10);
+    var idx = recurrenceSelectedDows.indexOf(dow);
+    if(idx === -1) recurrenceSelectedDows.push(dow); else recurrenceSelectedDows.splice(idx,1);
+    renderRecurrenceModal();
+  });
+  document.getElementById("recurrenceCancelBtn").addEventListener("click", function(){
+    document.getElementById("recurrenceModalOverlay").classList.add("hidden");
+    pendingRecurrenceWorkoutId = null;
+    pendingRecurrenceDate = null;
+  });
+  document.getElementById("recurrenceConfirmBtn").addEventListener("click", function(){
+    if(recurrenceMode === "weekly" && recurrenceSelectedDows.length === 0) return;
+    var workoutId = pendingRecurrenceWorkoutId;
+    var startDk = pendingRecurrenceDate;
+    if(recurrenceMode === "once"){
+      schedule.push({ id: uid(), workoutId: workoutId, date: startDk, seriesId: null });
+    } else {
+      var seriesId = uid();
+      var startDate = parseDateKey(startDk);
+      for(var i=0; i<371; i++){
+        var d = new Date(startDate.getTime() + i*24*60*60*1000);
+        if(recurrenceSelectedDows.indexOf(d.getDay()) !== -1){
+          schedule.push({ id: uid(), workoutId: workoutId, date: dateKey(d), seriesId: seriesId });
+        }
+      }
+    }
+    saveSchedule();
+    document.getElementById("recurrenceModalOverlay").classList.add("hidden");
+    calSelectedDateKey = startDk;
+    document.getElementById("dayDetailTitle").textContent = fmtDayDetailTitle(startDk);
+    renderDayDetailList();
+    renderCalendar();
+    renderHomeScreen();
+    document.getElementById("dayDetailModalOverlay").classList.remove("hidden");
   });
 
   function renderWorkoutPickerList(){
@@ -1434,12 +1648,9 @@
     }
     Array.prototype.forEach.call(list.querySelectorAll(".ex-row[data-workout-id]"), function(row){
       row.addEventListener("click", function(){
-        schedule.push({ id: uid(), workoutId: row.dataset.workoutId, date: calSelectedDateKey });
-        saveSchedule();
         document.getElementById("workoutPickerModalOverlay").classList.add("hidden");
-        renderDayDetailList();
-        renderCalendar();
-        renderHomeScreen();
+        document.getElementById("dayDetailModalOverlay").classList.add("hidden");
+        openRecurrenceModal(row.dataset.workoutId, calSelectedDateKey);
       });
     });
   }
@@ -1528,9 +1739,16 @@
     name = (name || "").trim();
     if(!name) return;
     if(!findLibraryEntry(name)){
-      exerciseLibrary.push({ name: name, description: "" });
+      exerciseLibrary.push({ name: name, description: "", favorite: false });
       saveExerciseLibrary();
     }
+  }
+  function toggleExerciseFavorite(name){
+    var entry = findLibraryEntry(name);
+    if(!entry) return false;
+    entry.favorite = !entry.favorite;
+    saveExerciseLibrary();
+    return entry.favorite;
   }
 
   function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
@@ -1601,6 +1819,7 @@
     osc.stop(now + dur);
   }
   function beepCountdown(){ beep(880, 0.09, 0.4); }
+  function beepCountdownFinal(){ beep(1175, 0.16, 0.6); }
   function beepGo(){ beep(1320, 0.16, 0.5); }
   function beepRest(){ beep(440, 0.16, 0.45); }
   function beepDone(){ beep(660,0.12,0.45); setTimeout(function(){beep(990,0.2,0.5);}, 140); }
@@ -2037,14 +2256,28 @@
       html += '<div class="exercise-section-label">' + letter + '</div>';
       groups[letter].forEach(function(e){
         html += '<div class="exercise-row" data-name="' + escapeHtml(e.name) + '" style="cursor:pointer;">' +
-          '<span>' + escapeHtml(e.name) + '</span>' +
+          '<span style="flex:1;">' + escapeHtml(e.name) + '</span>' +
+          '<button class="heart-btn' + (e.favorite ? ' favorited' : '') + '" title="Favorite">' + ICON_HEART + '</button>' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; color:var(--text-dim); flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>' +
         '</div>';
       });
     });
     wrap.innerHTML = html;
     Array.prototype.forEach.call(wrap.querySelectorAll(".exercise-row"), function(row){
-      row.addEventListener("click", function(){ openExerciseDetail(row.dataset.name); });
+      row.addEventListener("click", function(e){
+        if(e.target.closest(".heart-btn")) return;
+        openExerciseDetail(row.dataset.name);
+      });
+      var heartBtn = row.querySelector(".heart-btn");
+      heartBtn.addEventListener("click", function(){
+        var isFav = toggleExerciseFavorite(row.dataset.name);
+        heartBtn.classList.toggle("favorited", isFav);
+        if(isFav){
+          heartBtn.classList.remove("animate-pop");
+          void heartBtn.offsetWidth;
+          heartBtn.classList.add("animate-pop");
+        }
+      });
     });
   }
 
@@ -2107,6 +2340,9 @@
   var exerciseDetailDescInput = document.getElementById("exerciseDetailDescInput");
   var currentDetailOriginalName = null;
 
+  var exerciseDetailHeartBtn = document.getElementById("exerciseDetailHeartBtn");
+  exerciseDetailHeartBtn.innerHTML = ICON_HEART;
+
   function openExerciseDetail(name){
     var entry = findLibraryEntry(name);
     if(!entry) return;
@@ -2115,10 +2351,21 @@
     exerciseDetailDescView.textContent = entry.description && entry.description.trim()
       ? entry.description
       : "No description yet — tap the pencil to add one.";
+    exerciseDetailHeartBtn.classList.toggle("favorited", !!entry.favorite);
     exerciseDetailViewSection.classList.remove("hidden");
     exerciseDetailEditSection.classList.add("hidden");
     exerciseDetailModalOverlay.classList.remove("hidden");
   }
+  exerciseDetailHeartBtn.addEventListener("click", function(){
+    var isFav = toggleExerciseFavorite(currentDetailOriginalName);
+    exerciseDetailHeartBtn.classList.toggle("favorited", isFav);
+    if(isFav){
+      exerciseDetailHeartBtn.classList.remove("animate-pop");
+      void exerciseDetailHeartBtn.offsetWidth;
+      exerciseDetailHeartBtn.classList.add("animate-pop");
+    }
+    renderExercisesScreen();
+  });
   document.getElementById("exerciseDetailCloseBtn").addEventListener("click", function(){
     exerciseDetailModalOverlay.classList.add("hidden");
   });
@@ -2306,11 +2553,22 @@
             '<div class="type-badge ' + TYPE_BADGE_CLASS[w.type] + '">' + TYPE_ICON_SVG[w.type] + '</div>' +
             '<div class="card-top-text"><div class="name"></div><div class="meta"></div>' + bodyPartsLine + '</div>' +
           '</div>' +
+          '<button class="heart-btn' + (w.favorite ? ' favorited' : '') + '" title="Favorite">' + ICON_HEART + '</button>' +
           '<button class="play" title="Start">' + ICON_PLAY + '</button>' +
         '</div>';
       card.querySelector(".name").textContent = w.name;
       card.querySelector(".meta").textContent = workoutSummary(w);
       card.querySelector(".play").addEventListener("click", function(){ startWorkout(w); });
+      var heartBtn = card.querySelector(".heart-btn");
+      heartBtn.addEventListener("click", function(){
+        var isFav = toggleWorkoutFavorite(w);
+        heartBtn.classList.toggle("favorited", isFav);
+        if(isFav){
+          heartBtn.classList.remove("animate-pop");
+          void heartBtn.offsetWidth; // restart animation if toggled quickly
+          heartBtn.classList.add("animate-pop");
+        }
+      });
       card.addEventListener("click", function(e){
         if(e.target.closest("button")) return;
         openPreview(w);
@@ -2319,10 +2577,19 @@
     });
   }
 
+  var ICON_HEART = '<svg viewBox="0 0 24 24"><path d="M12 21s-7.16-4.35-9.78-8.28C.6 10.2 1 6.5 4.2 5c2.3-1.05 4.6-.3 5.9 1.3L12 8.3l1.9-2c1.3-1.6 3.6-2.35 5.9-1.3 3.2 1.5 3.6 5.2 1.98 7.72C19.16 16.65 12 21 12 21z"/></svg>';
+
+  function toggleWorkoutFavorite(w){
+    w.favorite = !w.favorite;
+    saveWorkouts(workouts);
+    return w.favorite;
+  }
+
   function duplicateWorkout(w){
     var copy = JSON.parse(JSON.stringify(w));
     copy.id = uid();
     copy.name = w.name + " (copy)";
+    copy.favorite = false;
     workouts.push(copy);
     saveWorkouts(workouts);
     renderWorkoutsList();
@@ -2446,15 +2713,29 @@
     startWorkoutQueue(list);
   });
 
+  var previewHeartBtn = document.getElementById("previewHeartBtn");
+  previewHeartBtn.innerHTML = ICON_HEART;
+
   function openPreview(w){
     currentPreviewWorkout = w;
     document.getElementById("previewBody").innerHTML = buildWorkoutDetailHTML(w);
+    previewHeartBtn.classList.toggle("favorited", !!w.favorite);
     showScreen("preview");
   }
 
   document.getElementById("previewBackBtn").addEventListener("click", function(){ showScreen("workouts"); });
   document.getElementById("previewEditBtn").addEventListener("click", function(){ openBuilder(currentPreviewWorkout); });
   document.getElementById("previewStartBtn").addEventListener("click", function(){ startWorkout(currentPreviewWorkout); });
+  previewHeartBtn.addEventListener("click", function(){
+    if(!currentPreviewWorkout) return;
+    var isFav = toggleWorkoutFavorite(currentPreviewWorkout);
+    previewHeartBtn.classList.toggle("favorited", isFav);
+    if(isFav){
+      previewHeartBtn.classList.remove("animate-pop");
+      void previewHeartBtn.offsetWidth;
+      previewHeartBtn.classList.add("animate-pop");
+    }
+  });
   document.getElementById("previewDuplicateBtn").addEventListener("click", function(){
     if(!currentPreviewWorkout) return;
     showConfirmModal("Are you sure you want to make a copy of this workout?", function(){
@@ -3407,12 +3688,9 @@
     if(pendingScheduleDate){
       var scheduleDate = pendingScheduleDate;
       pendingScheduleDate = null;
-      schedule.push({ id: uid(), workoutId: workout.id, date: scheduleDate });
-      saveSchedule();
-      renderHomeScreen();
       showScreen("program");
       renderCalendar();
-      openDayDetail(scheduleDate);
+      openRecurrenceModal(workout.id, scheduleDate);
       return;
     }
     showScreen("workouts");
@@ -3625,6 +3903,7 @@
     if(queueRecordedIds[w.id]) return;
     queueRecordedIds[w.id] = true;
     recordHistoryEntry(w, amrapRoundCount, undefined);
+    markScheduleCompletedForToday(w.id);
   }
 
   function currentColorVar(kind){
@@ -3721,7 +4000,7 @@
       var ceilRem = Math.ceil(remaining);
       if(ceilRem <= 3 && ceilRem >= 1 && beepedCountdownFor !== currentIndex*1000+ceilRem){
         beepedCountdownFor = currentIndex*1000+ceilRem;
-        beepCountdown();
+        if(ceilRem === 1) beepCountdownFinal(); else beepCountdown();
       }
     }
     rafId = requestAnimationFrame(tick);
@@ -3838,6 +4117,7 @@
       if(queueCurrentWorkout) recordQueueWorkoutIfNeeded(queueCurrentWorkout);
     } else {
       recordHistoryEntry(activeWorkout, amrapRoundCount, computeElapsedSec());
+      markScheduleCompletedForToday(activeWorkout.id);
     }
     document.getElementById("playerCenter").classList.remove("amrap-active");
     var center = document.getElementById("playerCenter");
@@ -3846,13 +4126,37 @@
     var extraLine = (!workoutQueue && activeWorkout.type === "amrap")
       ? '<p style="margin-top:-10px; color:var(--work); font-weight:800; font-size:19px;">' + amrapRoundCount + ' rounds completed</p>'
       : '';
+    var favoriteLine = "";
+    if(!workoutQueue){
+      favoriteLine = '<button class="finish-favorite-btn' + (activeWorkout.favorite ? ' favorited' : '') + '" id="finishFavoriteBtn">' +
+        '<span class="heart-btn' + (activeWorkout.favorite ? ' favorited' : '') + '" id="finishFavoriteHeart">' + ICON_HEART + '</span>' +
+        '<span id="finishFavoriteLabel">' + (activeWorkout.favorite ? "Favorited" : "Mark as Favorite") + '</span>' +
+      '</button>';
+    }
     center.innerHTML =
       '<div class="done-screen">' +
         '<div class="emoji">🎉</div>' +
         '<h2>Workout complete</h2>' +
         '<p>' + escapeHtml(doneName) + '</p>' +
         extraLine +
+        favoriteLine +
       '</div>';
+    if(!workoutQueue){
+      var finishFavBtn = document.getElementById("finishFavoriteBtn");
+      var finishFavHeart = document.getElementById("finishFavoriteHeart");
+      var finishFavLabel = document.getElementById("finishFavoriteLabel");
+      finishFavBtn.addEventListener("click", function(){
+        var isFav = toggleWorkoutFavorite(activeWorkout);
+        finishFavBtn.classList.toggle("favorited", isFav);
+        finishFavHeart.classList.toggle("favorited", isFav);
+        finishFavLabel.textContent = isFav ? "Favorited" : "Mark as Favorite";
+        if(isFav){
+          finishFavHeart.classList.remove("animate-pop");
+          void finishFavHeart.offsetWidth;
+          finishFavHeart.classList.add("animate-pop");
+        }
+      });
+    }
     controls.innerHTML = '<button class="ctrl-btn big" id="doneHomeBtn" style="width:auto; padding:0 30px; border-radius:16px; font-size:16px;">Done</button>';
     roundInfoEl.textContent = "";
     workoutQueue = null;
