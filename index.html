@@ -25,6 +25,7 @@
     --danger: #ff5d5d;
     --hyrox: #ff5e3a;
     --weightlifting: #94a3b8;
+    --multi: #7dd3fc;
     --silver: #94a3b8;
     --radius: 18px;
     --grad: linear-gradient(135deg, #2f6fe0 0%, #4dd2ff 55%, #94a3b8 100%);
@@ -54,6 +55,7 @@
     --danger: #d5342c;
     --hyrox: #d1451b;
     --weightlifting: #64748b;
+    --multi: #0369a1;
     --silver: #64748b;
     --grad: linear-gradient(135deg, #1d4ed8 0%, #0d84a3 55%, #64748b 100%);
     --grad-dark: linear-gradient(135deg, #1e3a8a 0%, #0c4a5c 55%, #334155 100%);
@@ -160,6 +162,14 @@
     background:var(--surface); border:1px solid var(--line); border-radius:14px;
     padding:13px 14px; margin-bottom:8px; box-shadow:var(--shadow-card); font-size:14.5px; font-weight:600;
   }
+  .ex-row{
+    display:flex; align-items:center; gap:10px;
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:12px 14px; margin-bottom:8px; box-shadow:var(--shadow-card);
+    font-size:14.5px; font-weight:600; transition:transform 0.1s ease, background 0.1s ease;
+  }
+  .ex-row:active{ transform:scale(0.97); background:var(--surface-2); }
+  .ex-row-chevron{ width:16px; height:16px; color:var(--text-dim); flex-shrink:0; }
   .iconbtn{
     background:var(--surface); border:1px solid var(--line); color:var(--text);
     width:40px; height:40px; border-radius:12px; font-size:16px;
@@ -225,6 +235,7 @@
   #filterBar .filter-chip.tag-warmup.active{ background:linear-gradient(135deg,#15803d,var(--warmup)); }
   #filterBar .filter-chip.tag-hyrox.active{ background:linear-gradient(135deg,#b8380a,var(--hyrox)); }
   #filterBar .filter-chip.tag-weightlifting.active{ background:linear-gradient(135deg,#475569,var(--weightlifting)); }
+  #filterBar .filter-chip.tag-multi.active{ background:linear-gradient(135deg,#1e3a8a,var(--multi)); }
 
   .topbar-actions-wrap{ position:relative; flex-shrink:0; }
   .iconbtn-settings{ background:var(--surface); border-color:var(--line); color:var(--text-dim); }
@@ -327,6 +338,7 @@
   .tag-warmup{ background:rgba(74,222,128,0.14); color:var(--warmup); }
   .tag-hyrox{ background:rgba(255,94,58,0.14); color:var(--hyrox); }
   .tag-weightlifting{ background:rgba(148,163,184,0.16); color:var(--weightlifting); }
+  .tag-multi{ background:rgba(125,211,252,0.16); color:var(--multi); }
   .tag-all{ background:rgba(255,255,255,0.10); color:var(--text); }
 
   .tag-bodypart{ background:var(--text-dim); color:var(--surface); }
@@ -436,6 +448,11 @@
     width:22px; height:22px; flex-shrink:0; touch-action:none; cursor:grab;
   }
   .ex-grip svg{ width:16px; height:16px; }
+  .preview-eye-btn{
+    background:none; border:none; color:var(--text-dim); width:28px; height:28px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .preview-eye-btn svg{ width:18px; height:18px; }
   .exercise-item .remove{
     background:none; border:none; color:var(--danger); font-size:20px; width:30px; flex-shrink:0;
   }
@@ -659,6 +676,7 @@
   .badge-grad-warmup{ background:linear-gradient(135deg,#334155,#64748b); }
   .badge-grad-hyrox{ background:linear-gradient(135deg,#475569,#94a3b8); }
   .badge-grad-weightlifting{ background:linear-gradient(135deg,#64748b,#cbd5e1); }
+  .badge-grad-multi{ background:linear-gradient(135deg,#1e3a8a,#38bdf8,#cbd5e1); }
 
   /* ===================== V2: SETTINGS SCREEN ===================== */
   .settings-logo-wrap{ display:flex; justify-content:center; padding:10px 0 24px 0; }
@@ -793,6 +811,7 @@
       <button class="filter-chip tag-amrap" data-filter="amrap">AMRAP</button>
       <button class="filter-chip tag-hyrox" data-filter="hyrox">Hyrox</button>
       <button class="filter-chip tag-weightlifting" data-filter="weightlifting">Weightlifting</button>
+      <button class="filter-chip tag-multi" data-filter="multi">Multi</button>
     </div>
     <div id="homeList" style="position:relative; flex:1; overflow-y:auto;">
       <div id="emptyState" class="empty-state hidden">
@@ -1029,11 +1048,26 @@
   </div>
 
   <div class="modal-overlay hidden" id="workoutPickerModalOverlay">
-    <div class="modal-card">
+    <div class="modal-card" style="max-width:440px; max-height:82vh; display:flex; flex-direction:column;">
       <div class="modal-title">Choose a Workout</div>
-      <div id="workoutPickerList" style="max-height:320px; overflow-y:auto; margin-bottom:14px;"></div>
+      <div class="search-bar" id="workoutPickerSearchBarWrap" style="margin:0 0 12px 0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="workoutPickerSearchInput" placeholder="Search workouts">
+        <button class="search-clear hidden" id="workoutPickerSearchClearBtn">✕</button>
+      </div>
+      <div id="workoutPickerList" style="flex:1; overflow-y:auto; margin-bottom:14px; min-height:120px;"></div>
       <div class="modal-actions">
         <button class="modal-btn-secondary" id="workoutPickerCancelBtn" style="flex:1;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="workoutQuickPreviewModalOverlay">
+    <div class="modal-card" style="max-width:440px; max-height:82vh; display:flex; flex-direction:column;">
+      <div id="workoutQuickPreviewBody" style="flex:1; overflow-y:auto; margin-bottom:14px;"></div>
+      <div class="modal-actions" style="margin-top:0;">
+        <button class="modal-btn-secondary" id="quickPreviewBackBtn" style="flex:1;">Back</button>
+        <button class="modal-btn-primary" id="quickPreviewUseBtn" style="flex:1;">Use This Workout</button>
       </div>
     </div>
   </div>
@@ -1136,6 +1170,9 @@
     </div>
     <div id="builderBody">
       <div id="builderRestFields">
+      <div class="field-label hidden" id="sectionLabelFieldLabel">Section Name (optional)</div>
+      <input type="text" id="sectionLabelInput" class="hidden" placeholder="e.g. Warmup" maxlength="40">
+
       <div class="field-label">Type</div>
       <div class="type-grid" id="typeGrid">
         <button class="type-opt" data-type="tabata">
@@ -1174,6 +1211,10 @@
           <div class="t">Weightlifting</div>
           <div class="d">Exercise, reps, rest, and sets. Tap "Complete Set" when you finish a set to start the rest timer.</div>
         </button>
+        <button class="type-opt" data-type="multi">
+          <div class="t">Multi</div>
+          <div class="d">Combine multiple types into one workout — e.g. a warmup, then weightlifting, then a HIIT finisher.</div>
+        </button>
       </div>
       <div class="chip-row" id="typeChipRow">
         <button class="chip" data-type="tabata">Tabata</button>
@@ -1185,11 +1226,18 @@
         <button class="chip" data-type="warmup">Warmup</button>
         <button class="chip" data-type="hyrox">Hyrox</button>
         <button class="chip" data-type="weightlifting">Weightlifting</button>
+        <button class="chip" data-type="multi">Multi</button>
       </div>
 
       <div id="typeSettings"></div>
 
-      <div class="field-label">Body Parts</div>
+      <div id="multiSectionsWrap" class="hidden">
+        <div class="field-label">Sections</div>
+        <div id="multiSectionsListWrap"></div>
+        <button class="add-exercise-btn" id="addSectionBtn">+ Add Section</button>
+      </div>
+
+      <div class="field-label" id="bodyPartsFieldLabel">Body Parts</div>
       <div class="bodypart-grid" id="bodyPartGrid">
         <button class="bodypart-chip" data-part="arms">Arms</button>
         <button class="bodypart-chip" data-part="legs">Legs</button>
@@ -1203,8 +1251,12 @@
       <button class="add-exercise-btn hidden" id="addExerciseBtn">+ Add Exercise</button>
       </div>
     </div>
-    <div class="save-bar">
+    <div class="save-bar" id="workoutSaveBar">
       <button class="primary-btn" id="saveWorkoutBtn" disabled>Save Workout</button>
+    </div>
+    <div class="save-bar hidden" id="sectionSaveBar" style="display:flex; gap:10px;">
+      <button class="modal-btn-secondary" id="cancelSectionBtn" style="flex:1; margin-top:0;">Cancel</button>
+      <button class="primary-btn" id="saveSectionBtn" style="flex:1;" disabled>Save Section</button>
     </div>
     <div class="modal-overlay hidden" id="nameModalOverlay">
       <div class="modal-card">
@@ -1489,11 +1541,19 @@
     list.innerHTML = entries.map(function(s){
       var w = getWorkoutById(s.workoutId);
       if(!w) return "";
-      return '<div class="ex-row" data-sched-id="' + s.id + '">' +
-        '<span style="flex:1;">' + escapeHtml(w.name) + (s.seriesId ? ' <span style="color:var(--text-dim); font-weight:600; font-size:12px;">&middot; repeats</span>' : '') + '</span>' +
+      return '<div class="ex-row" data-sched-id="' + s.id + '" data-workout-id="' + w.id + '" style="cursor:pointer;">' +
+        '<div class="type-badge ' + (TYPE_BADGE_CLASS[w.type]||"badge-grad-timed") + '" style="width:32px; height:32px; border-radius:10px; flex-shrink:0;">' + (TYPE_ICON_SVG[w.type]||"") + '</div>' +
+        '<span style="flex:1; min-width:0;">' + escapeHtml(w.name) + (s.seriesId ? ' <span style="color:var(--text-dim); font-weight:600; font-size:12px;">&middot; repeats</span>' : '') + '</span>' +
+        '<svg class="ex-row-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>' +
         '<button class="remove-sched-btn" data-sched-id="' + s.id + '">✕</button>' +
       '</div>';
     }).join("");
+    Array.prototype.forEach.call(list.querySelectorAll(".ex-row"), function(row){
+      row.addEventListener("click", function(e){
+        if(e.target.closest(".remove-sched-btn")) return;
+        openWorkoutQuickPreview(row.dataset.workoutId, "viewonly");
+      });
+    });
     Array.prototype.forEach.call(list.querySelectorAll(".remove-sched-btn"), function(btn){
       btn.addEventListener("click", function(){
         var entry = schedule.find(function(s){ return s.id === btn.dataset.schedId; });
@@ -1621,19 +1681,39 @@
     document.getElementById("dayDetailModalOverlay").classList.remove("hidden");
   });
 
+  var workoutPickerSearchQuery = "";
+  var workoutPickerSearchInput = document.getElementById("workoutPickerSearchInput");
+  var workoutPickerSearchClearBtn = document.getElementById("workoutPickerSearchClearBtn");
+  workoutPickerSearchInput.addEventListener("input", function(){
+    workoutPickerSearchQuery = workoutPickerSearchInput.value.trim().toLowerCase();
+    workoutPickerSearchClearBtn.classList.toggle("hidden", workoutPickerSearchQuery.length === 0);
+    renderWorkoutPickerList();
+  });
+  workoutPickerSearchClearBtn.addEventListener("click", function(){
+    workoutPickerSearchInput.value = "";
+    workoutPickerSearchQuery = "";
+    workoutPickerSearchClearBtn.classList.add("hidden");
+    renderWorkoutPickerList();
+  });
+
   function renderWorkoutPickerList(){
     var list = document.getElementById("workoutPickerList");
     var createRow = '<div class="ex-row create-new-workout-row" style="cursor:pointer; color:var(--work); font-weight:800;">' +
       '<span class="ex-grip" style="color:var(--work);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>' +
       '<span style="flex:1;">Create New Workout</span>' +
     '</div>';
-    if(workouts.length === 0){
-      list.innerHTML = createRow + '<p class="helper-text" style="text-align:center; margin:10px 0;">No saved workouts yet — create one above.</p>';
+    var filtered = workouts.filter(function(w){
+      return !workoutPickerSearchQuery || w.name.toLowerCase().indexOf(workoutPickerSearchQuery) !== -1;
+    });
+    if(filtered.length === 0){
+      list.innerHTML = createRow + '<p class="helper-text" style="text-align:center; margin:10px 0;">' +
+        (workouts.length === 0 ? "No saved workouts yet — create one above." : "No workouts match your search.") + '</p>';
     } else {
-      list.innerHTML = createRow + workouts.map(function(w){
+      list.innerHTML = createRow + filtered.map(function(w){
         return '<div class="ex-row" data-workout-id="' + w.id + '" style="cursor:pointer;">' +
           '<div class="type-badge ' + (TYPE_BADGE_CLASS[w.type]||"badge-grad-timed") + '" style="width:32px; height:32px; border-radius:10px; margin-right:4px;">' + (TYPE_ICON_SVG[w.type]||"") + '</div>' +
           '<span style="flex:1;">' + escapeHtml(w.name) + '</span>' +
+          '<button class="preview-eye-btn" data-workout-id="' + w.id + '" title="Preview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>' +
         '</div>';
       }).join("");
     }
@@ -1647,13 +1727,41 @@
       });
     }
     Array.prototype.forEach.call(list.querySelectorAll(".ex-row[data-workout-id]"), function(row){
-      row.addEventListener("click", function(){
+      row.addEventListener("click", function(e){
+        if(e.target.closest(".preview-eye-btn")) return;
         document.getElementById("workoutPickerModalOverlay").classList.add("hidden");
         document.getElementById("dayDetailModalOverlay").classList.add("hidden");
         openRecurrenceModal(row.dataset.workoutId, calSelectedDateKey);
       });
     });
+    Array.prototype.forEach.call(list.querySelectorAll(".preview-eye-btn"), function(btn){
+      btn.addEventListener("click", function(e){
+        e.stopPropagation();
+        openWorkoutQuickPreview(btn.dataset.workoutId, "picker");
+      });
+    });
   }
+
+  /* ===================== QUICK PREVIEW (used by the calendar's workout picker & day detail) ===================== */
+  var quickPreviewWorkoutId = null;
+  function openWorkoutQuickPreview(workoutId, context){
+    var w = getWorkoutById(workoutId);
+    if(!w) return;
+    quickPreviewWorkoutId = workoutId;
+    document.getElementById("workoutQuickPreviewBody").innerHTML = buildWorkoutDetailHTML(w);
+    document.getElementById("quickPreviewUseBtn").classList.toggle("hidden", context !== "picker");
+    document.getElementById("quickPreviewBackBtn").textContent = context === "picker" ? "Back" : "Close";
+    document.getElementById("workoutQuickPreviewModalOverlay").classList.remove("hidden");
+  }
+  document.getElementById("quickPreviewBackBtn").addEventListener("click", function(){
+    document.getElementById("workoutQuickPreviewModalOverlay").classList.add("hidden");
+  });
+  document.getElementById("quickPreviewUseBtn").addEventListener("click", function(){
+    document.getElementById("workoutQuickPreviewModalOverlay").classList.add("hidden");
+    document.getElementById("workoutPickerModalOverlay").classList.add("hidden");
+    document.getElementById("dayDetailModalOverlay").classList.add("hidden");
+    openRecurrenceModal(quickPreviewWorkoutId, calSelectedDateKey);
+  });
 
   var EXERCISE_LIBRARY_KEY = "setwork_exercise_library_v1";
   var DEFAULT_EXERCISE_LIBRARY = [
@@ -1890,7 +1998,8 @@
   // belongs to that workout (standard flattening for hierarchical -> spreadsheet data).
   var CSV_HEADERS = ["Workout ID","Workout Name","Type","Body Parts","Rounds","Work Sec","Rest Sec",
     "Rest Between Sec","Transition Sec","Interval Sec","Time Cap Min",
-    "Exercise Order","Exercise Name","Exercise Work Sec","Exercise Rest Sec","Exercise Rep Target","Exercise Sets","Exercise Weight"];
+    "Exercise Order","Exercise Name","Exercise Work Sec","Exercise Rest Sec","Exercise Rep Target","Exercise Sets","Exercise Weight",
+    "Section Order","Section Type","Section Label"];
 
   function csvField(v){
     var s = (v===undefined || v===null) ? "" : String(v);
@@ -1903,16 +2012,32 @@
   function workoutsToCSV(list){
     var lines = [csvLine(CSV_HEADERS)];
     list.forEach(function(w){
-      var s = w.settings || {};
       var bp = (w.bodyParts && w.bodyParts.length) ? w.bodyParts.join("|") : "";
-      w.exercises.forEach(function(ex, idx){
-        lines.push(csvLine([
-          w.id, w.name, w.type, bp,
-          blank(s.rounds), blank(s.workSec), blank(s.restSec),
-          blank(s.restBetween), blank(s.transitionSec), blank(s.intervalSec), blank(s.capMin),
-          idx+1, ex.name, blank(ex.workSec), blank(ex.restSec), blank(ex.repTarget), blank(ex.sets), blank(ex.weight)
-        ]));
-      });
+      if(w.type === "multi"){
+        (w.sections || []).forEach(function(section, sIdx){
+          var s = section.settings || {};
+          (section.exercises || []).forEach(function(ex, idx){
+            lines.push(csvLine([
+              w.id, w.name, w.type, bp,
+              blank(s.rounds), blank(s.workSec), blank(s.restSec),
+              blank(s.restBetween), blank(s.transitionSec), blank(s.intervalSec), blank(s.capMin),
+              idx+1, ex.name, blank(ex.workSec), blank(ex.restSec), blank(ex.repTarget), blank(ex.sets), blank(ex.weight),
+              sIdx+1, section.type, section.label || ""
+            ]));
+          });
+        });
+      } else {
+        var s = w.settings || {};
+        w.exercises.forEach(function(ex, idx){
+          lines.push(csvLine([
+            w.id, w.name, w.type, bp,
+            blank(s.rounds), blank(s.workSec), blank(s.restSec),
+            blank(s.restBetween), blank(s.transitionSec), blank(s.intervalSec), blank(s.capMin),
+            idx+1, ex.name, blank(ex.workSec), blank(ex.restSec), blank(ex.repTarget), blank(ex.sets), blank(ex.weight),
+            "", "", ""
+          ]));
+        });
+      }
     });
     return lines.join("\r\n");
   }
@@ -1938,7 +2063,7 @@
     return rows;
   }
 
-  var VALID_TYPES = { tabata:1, hiit:1, circuit:1, timed:1, emom:1, amrap:1, warmup:1, hyrox:1, weightlifting:1 };
+  var VALID_TYPES = { tabata:1, hiit:1, circuit:1, timed:1, emom:1, amrap:1, warmup:1, hyrox:1, weightlifting:1, multi:1 };
   var SETTING_COL_MAP = {
     "Rounds":"rounds", "Work Sec":"workSec", "Rest Sec":"restSec",
     "Rest Between Sec":"restBetween", "Transition Sec":"transitionSec",
@@ -1966,10 +2091,37 @@
       if(!byKey[key]){
         var bpRaw = get(r,"Body Parts").trim();
         var bodyParts = bpRaw ? bpRaw.split("|").map(function(s){ return s.trim(); }).filter(function(s){ return BODY_PARTS.indexOf(s) !== -1; }) : [];
-        byKey[key] = { id: uid(), name: name, type: type, bodyParts: bodyParts, createdAt: Date.now(), settings: {}, exercises: [] };
+        byKey[key] = { id: uid(), name: name, type: type, bodyParts: bodyParts, createdAt: Date.now(), settings: {}, exercises: [], sectionsByOrder: {} };
         order.push(key);
       }
       var w = byKey[key];
+
+      if(type === "multi"){
+        var sectionType = get(r,"Section Type").trim().toLowerCase();
+        var sectionOrderRaw = num(r, "Section Order");
+        if(!VALID_TYPES[sectionType] || sectionType === "multi" || sectionOrderRaw === undefined){ skipped++; return; }
+        if(!w.sectionsByOrder[sectionOrderRaw]){
+          w.sectionsByOrder[sectionOrderRaw] = {
+            id: uid(), type: sectionType, label: get(r,"Section Label").trim(), settings: {}, exercises: [], _order: sectionOrderRaw
+          };
+        }
+        var section = w.sectionsByOrder[sectionOrderRaw];
+        Object.keys(SETTING_COL_MAP).forEach(function(col){
+          var v = num(r, col);
+          if(v !== undefined) section.settings[SETTING_COL_MAP[col]] = v;
+        });
+        section.exercises.push({
+          id: uid(), name: exName,
+          workSec: num(r, "Exercise Work Sec"),
+          restSec: num(r, "Exercise Rest Sec"),
+          repTarget: num(r, "Exercise Rep Target"),
+          sets: num(r, "Exercise Sets"),
+          weight: num(r, "Exercise Weight"),
+          _order: num(r, "Exercise Order")
+        });
+        return;
+      }
+
       Object.keys(SETTING_COL_MAP).forEach(function(col){
         var v = num(r, col);
         if(v !== undefined) w.settings[SETTING_COL_MAP[col]] = v;
@@ -1984,8 +2136,30 @@
         _order: num(r, "Exercise Order")
       });
     });
-    var result = order.map(function(k){ return byKey[k]; }).filter(function(w){ return w.exercises.length > 0; });
+    var result = order.map(function(k){ return byKey[k]; }).filter(function(w){
+      if(w.type === "multi") return Object.keys(w.sectionsByOrder).length > 0;
+      return w.exercises.length > 0;
+    });
     result.forEach(function(w){
+      if(w.type === "multi"){
+        var sections = Object.keys(w.sectionsByOrder).map(function(k){ return w.sectionsByOrder[k]; });
+        sections.sort(function(a,b){ return a._order - b._order; });
+        sections.forEach(function(sec){
+          sec.exercises.sort(function(a,b){
+            var ao = a._order === undefined ? Infinity : a._order;
+            var bo = b._order === undefined ? Infinity : b._order;
+            return ao - bo;
+          });
+          sec.exercises.forEach(function(ex){ delete ex._order; });
+          delete sec._order;
+        });
+        w.sections = sections;
+        w.exercises = [];
+        w.settings = {};
+        delete w.sectionsByOrder;
+        return;
+      }
+      delete w.sectionsByOrder;
       w.exercises.sort(function(a,b){
         var ao = a._order === undefined ? Infinity : a._order;
         var bo = b._order === undefined ? Infinity : b._order;
@@ -2147,9 +2321,9 @@
   }
   var searchQuery = "";
 
-  var TYPE_LABELS = { tabata:"Tabata", hiit:"HIIT", circuit:"Circuit", timed:"Timed", emom:"EMOM", amrap:"AMRAP", warmup:"Warmup", hyrox:"Hyrox", weightlifting:"Weightlifting" };
-  var TYPE_TAGCLASS = { tabata:"tag-tabata", hiit:"tag-hiit", circuit:"tag-circuit", timed:"tag-timed", emom:"tag-emom", amrap:"tag-amrap", warmup:"tag-warmup", hyrox:"tag-hyrox", weightlifting:"tag-weightlifting" };
-  var TYPE_BADGE_CLASS = { tabata:"badge-grad-tabata", hiit:"badge-grad-hiit", circuit:"badge-grad-circuit", timed:"badge-grad-timed", emom:"badge-grad-emom", amrap:"badge-grad-amrap", warmup:"badge-grad-warmup", hyrox:"badge-grad-hyrox", weightlifting:"badge-grad-weightlifting" };
+  var TYPE_LABELS = { tabata:"Tabata", hiit:"HIIT", circuit:"Circuit", timed:"Timed", emom:"EMOM", amrap:"AMRAP", warmup:"Warmup", hyrox:"Hyrox", weightlifting:"Weightlifting", multi:"Multi" };
+  var TYPE_TAGCLASS = { tabata:"tag-tabata", hiit:"tag-hiit", circuit:"tag-circuit", timed:"tag-timed", emom:"tag-emom", amrap:"tag-amrap", warmup:"tag-warmup", hyrox:"tag-hyrox", weightlifting:"tag-weightlifting", multi:"tag-multi" };
+  var TYPE_BADGE_CLASS = { tabata:"badge-grad-tabata", hiit:"badge-grad-hiit", circuit:"badge-grad-circuit", timed:"badge-grad-timed", emom:"badge-grad-emom", amrap:"badge-grad-amrap", warmup:"badge-grad-warmup", hyrox:"badge-grad-hyrox", weightlifting:"badge-grad-weightlifting", multi:"badge-grad-multi" };
   var TYPE_ICON_SVG = {
     tabata: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>',
     hiit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>',
@@ -2159,7 +2333,8 @@
     amrap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.508 0-4.508 8 0 8 5.606 0 7.644-8 12.739-8z"/></svg>',
     warmup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>',
     hyrox: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 100-2 1 1 0 000 2zm-3 11.5L9 12l4-2 1.5 3.5 3 1"/></svg>',
-    weightlifting: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M4 9v6M20 9v6M8 6.5v11M16 6.5v11"/></svg>'
+    weightlifting: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M4 9v6M20 9v6M8 6.5v11M16 6.5v11"/></svg>',
+    multi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg>'
   };
   var BODY_PARTS = ["arms","legs","back","chest","cardio"];
   var BODY_PART_LABELS = { arms:"Arms", legs:"Legs", back:"Back", chest:"Chest", cardio:"Cardio" };
@@ -2399,6 +2574,12 @@
   }
 
   function workoutSummary(w){
+    if(w.type === "multi"){
+      var sections = w.sections || [];
+      var totalExercises = sections.reduce(function(a,s){ return a + (s.exercises ? s.exercises.length : 0); }, 0);
+      var totalSec = generateIntervals(w).reduce(function(a,i){return a+i.duration;},0);
+      return sections.length + (sections.length===1? " section" : " sections") + " · " + totalExercises + (totalExercises===1? " exercise" : " exercises") + " · " + fmtMinSec(totalSec) + " total";
+    }
     var exCount = w.exercises.length;
     if(w.type === "weightlifting"){
       var totalSets = w.exercises.reduce(function(a,e){ return a + (e.sets||0); }, 0);
@@ -2659,7 +2840,25 @@
       '<span class="tag ' + TYPE_TAGCLASS[w.type] + '" style="display:inline-block; margin-bottom:14px;">' + TYPE_LABELS[w.type] + '</span>' +
       '<h2 style="font-size:24px; font-weight:800; margin:0 0 6px 0; line-height:1.25;">' + escapeHtml(w.name) + '</h2>' +
       '<div style="color:var(--text-dim); font-size:14px; margin-bottom:14px;">' + workoutSummary(w) + '</div>' +
-      (w.bodyParts && w.bodyParts.length ? '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px;">' + bodyPartTagsHTML(w.bodyParts) + '</div>' : '') +
+      (w.bodyParts && w.bodyParts.length ? '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px;">' + bodyPartTagsHTML(w.bodyParts) + '</div>' : '');
+
+    if(w.type === "multi"){
+      (w.sections || []).forEach(function(section, sIdx){
+        html +=
+          '<div style="display:flex; align-items:center; gap:8px; margin:' + (sIdx===0 ? "0" : "22px") + ' 0 10px 0;">' +
+            '<span class="tag ' + TYPE_TAGCLASS[section.type] + '">' + escapeHtml(section.label || TYPE_LABELS[section.type]) + '</span>' +
+          '</div>' +
+          '<div class="helper-text" style="margin-bottom:14px;">' + escapeHtml(typeSettingsSummary(section)) + '</div>';
+        (section.exercises || []).forEach(function(ex, idx){
+          var detail = exercisePreviewDetail(section, ex);
+          html += '<div class="preview-ex-row"><div class="ex-left"><span class="preview-ex-num">' + (idx+1) + '</span><span class="exname">' + escapeHtml(ex.name) + '</span></div>' +
+            (detail ? '<span class="exdetail">' + detail + '</span>' : '') + '</div>';
+        });
+      });
+      return html;
+    }
+
+    html +=
       '<div class="field-label">Settings</div>' +
       '<div class="helper-text" style="margin-bottom:20px;">' + escapeHtml(typeSettingsSummary(w)) + '</div>' +
       '<div class="field-label">' + (w.type === "amrap" ? "Round Exercises" : "Exercises") + '</div>';
@@ -3194,6 +3393,9 @@
   var currentType = null;
   var exercises = []; // {id, name, workSec, restSec}
   var selectedBodyParts = [];
+  var multiSections = []; // sections collected while building a "multi" workout
+  var builderMode = "workout"; // "workout" | "section"
+  var editingSectionIndex = -1; // -1 = adding a new section, else index into multiSections
 
   var workoutNameInput = document.getElementById("workoutNameInput");
   var builderRestFields = document.getElementById("builderRestFields");
@@ -3278,7 +3480,20 @@
     nameModalOverlay.classList.add("hidden");
     currentType = existingWorkout ? existingWorkout.type : null;
     selectedBodyParts = existingWorkout && existingWorkout.bodyParts ? existingWorkout.bodyParts.slice() : [];
-    if(existingWorkout){
+    multiSections = (existingWorkout && existingWorkout.type === "multi" && existingWorkout.sections) ? JSON.parse(JSON.stringify(existingWorkout.sections)) : [];
+    // Always reset out of section-editing mode when (re)opening the builder,
+    // in case a previous session was left mid-section-edit.
+    builderMode = "workout";
+    editingSectionIndex = -1;
+    document.getElementById("multiSectionsWrap").classList.add("hidden");
+    document.getElementById("bodyPartsFieldLabel").classList.remove("hidden");
+    bodyPartGrid.classList.remove("hidden");
+    document.getElementById("workoutSaveBar").classList.remove("hidden");
+    document.getElementById("sectionSaveBar").classList.add("hidden");
+    document.getElementById("sectionLabelFieldLabel").classList.add("hidden");
+    document.getElementById("sectionLabelInput").classList.add("hidden");
+    setMultiTypeOptionVisible(true);
+    if(existingWorkout && existingWorkout.type !== "multi"){
       typeSettingsState[existingWorkout.type] = Object.assign({}, typeSettingsState[existingWorkout.type], existingWorkout.settings || {});
       exercises = JSON.parse(JSON.stringify(existingWorkout.exercises));
     } else {
@@ -3322,7 +3537,7 @@
 
   function selectWorkoutType(newType, fromUserClick){
     currentType = newType;
-    if(exercises.length === 0){
+    if(currentType !== "multi" && exercises.length === 0){
       if(currentType === "hyrox"){
         // seed with the full official 8-run / 8-station sequence
         exercises = getHyroxSeedExercises();
@@ -3348,12 +3563,12 @@
 
   typeGrid.addEventListener("click", function(e){
     var btn = e.target.closest(".type-opt");
-    if(!btn) return;
+    if(!btn || btn.classList.contains("hidden")) return;
     selectWorkoutType(btn.dataset.type, true);
   });
   typeChipRow.addEventListener("click", function(e){
     var btn = e.target.closest(".chip");
-    if(!btn) return;
+    if(!btn || btn.classList.contains("hidden")) return;
     selectWorkoutType(btn.dataset.type, true);
   });
 
@@ -3361,8 +3576,142 @@
     return { id: uid(), name: "", workSec: null, restSec: null, repTarget: null, sets: null, weight: null };
   }
 
+  /* ===================== MULTI-WORKOUT SECTIONS ===================== */
+  function setMultiTypeOptionVisible(visible){
+    var gridBtn = typeGrid.querySelector('[data-type="multi"]');
+    var chipBtn = typeChipRow.querySelector('[data-type="multi"]');
+    if(gridBtn) gridBtn.classList.toggle("hidden", !visible);
+    if(chipBtn) chipBtn.classList.toggle("hidden", !visible);
+  }
+
+  function renderMultiSectionsList(){
+    var wrap = document.getElementById("multiSectionsListWrap");
+    if(multiSections.length === 0){
+      wrap.innerHTML = '<p class="helper-text" style="margin-top:0;">No sections yet — add your first one below.</p>';
+      return;
+    }
+    wrap.innerHTML = multiSections.map(function(section, idx){
+      var exCount = (section.exercises || []).length;
+      return '<div class="exercise-item" data-idx="' + idx + '" style="cursor:pointer;">' +
+        '<div class="exhead" style="margin-bottom:0;">' +
+          '<span class="ex-grip" style="cursor:default;">' + (TYPE_ICON_SVG[section.type]||"") + '</span>' +
+          '<div style="flex:1; min-width:0;">' +
+            '<div style="font-weight:800; font-size:14.5px;">' + escapeHtml(section.label || TYPE_LABELS[section.type]) + '</div>' +
+            '<div class="helper-text" style="margin:2px 0 0 0;">' + TYPE_LABELS[section.type] + ' &middot; ' + exCount + (exCount===1?" exercise":" exercises") + '</div>' +
+          '</div>' +
+          '<button class="remove section-remove-btn" data-idx="' + idx + '">✕</button>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+    Array.prototype.forEach.call(wrap.querySelectorAll(".exercise-item"), function(row){
+      row.addEventListener("click", function(e){
+        if(e.target.closest(".section-remove-btn")) return;
+        enterSectionMode(parseInt(row.dataset.idx,10));
+      });
+    });
+    Array.prototype.forEach.call(wrap.querySelectorAll(".section-remove-btn"), function(btn){
+      btn.addEventListener("click", function(e){
+        e.stopPropagation();
+        multiSections.splice(parseInt(btn.dataset.idx,10), 1);
+        renderMultiSectionsList();
+        validateBuilder();
+      });
+    });
+  }
+
+  function enterSectionMode(index){
+    builderMode = "section";
+    editingSectionIndex = (index === undefined || index === null) ? -1 : index;
+    document.getElementById("multiSectionsWrap").classList.add("hidden");
+    document.getElementById("bodyPartsFieldLabel").classList.add("hidden");
+    bodyPartGrid.classList.add("hidden");
+    document.getElementById("workoutSaveBar").classList.add("hidden");
+    document.getElementById("sectionSaveBar").classList.remove("hidden");
+    document.getElementById("sectionLabelFieldLabel").classList.remove("hidden");
+    document.getElementById("sectionLabelInput").classList.remove("hidden");
+    setMultiTypeOptionVisible(false);
+
+    if(editingSectionIndex >= 0){
+      var section = multiSections[editingSectionIndex];
+      document.getElementById("sectionLabelInput").value = section.label || "";
+      currentType = section.type;
+      typeSettingsState[section.type] = Object.assign({}, typeSettingsState[section.type], section.settings || {});
+      exercises = JSON.parse(JSON.stringify(section.exercises || []));
+    } else {
+      document.getElementById("sectionLabelInput").value = "";
+      currentType = null;
+      exercises = [];
+    }
+    renderTypeGrid();
+    renderTypeChipRow();
+    renderTypeSettings();
+    renderExerciseList();
+    validateBuilder();
+    builderRestFields.scrollIntoView && builderRestFields.scrollTo && builderRestFields.scrollTo({ top:0, behavior:"smooth" });
+  }
+
+  function exitSectionMode(){
+    builderMode = "workout";
+    editingSectionIndex = -1;
+    document.getElementById("multiSectionsWrap").classList.remove("hidden");
+    document.getElementById("bodyPartsFieldLabel").classList.remove("hidden");
+    bodyPartGrid.classList.remove("hidden");
+    document.getElementById("workoutSaveBar").classList.remove("hidden");
+    document.getElementById("sectionSaveBar").classList.add("hidden");
+    document.getElementById("sectionLabelFieldLabel").classList.add("hidden");
+    document.getElementById("sectionLabelInput").classList.add("hidden");
+    setMultiTypeOptionVisible(true);
+
+    currentType = "multi";
+    exercises = [];
+    renderTypeGrid();
+    renderTypeChipRow();
+    renderTypeSettings();
+    validateBuilder();
+  }
+
+  document.getElementById("addSectionBtn").addEventListener("click", function(){
+    enterSectionMode(-1);
+  });
+  document.getElementById("cancelSectionBtn").addEventListener("click", function(){
+    exitSectionMode();
+  });
+  document.getElementById("saveSectionBtn").addEventListener("click", function(){
+    if(!currentType || exercises.length === 0) return;
+    exercises.forEach(function(ex){ addToLibraryIfNew(ex.name); });
+    var section = {
+      id: (editingSectionIndex >= 0 && multiSections[editingSectionIndex]) ? multiSections[editingSectionIndex].id : uid(),
+      type: currentType,
+      label: document.getElementById("sectionLabelInput").value.trim(),
+      settings: JSON.parse(JSON.stringify(typeSettingsState[currentType])),
+      exercises: exercises.map(function(e){ return { id:e.id, name:e.name.trim(), workSec:e.workSec, restSec:e.restSec, repTarget:e.repTarget, sets:e.sets, weight:e.weight }; })
+    };
+    if(editingSectionIndex >= 0){
+      multiSections[editingSectionIndex] = section;
+    } else {
+      multiSections.push(section);
+    }
+    exitSectionMode();
+  });
+
   function renderTypeSettings(){
-    if(!currentType){ typeSettingsEl.innerHTML = ""; exercisesLabelEl.style.display="none"; addExerciseBtn.classList.add("hidden"); return; }
+    if(!currentType){
+      typeSettingsEl.innerHTML = "";
+      exercisesLabelEl.style.display="none";
+      addExerciseBtn.classList.add("hidden");
+      document.getElementById("multiSectionsWrap").classList.add("hidden");
+      return;
+    }
+    if(currentType === "multi"){
+      typeSettingsEl.innerHTML = '<div class="helper-text">Build this workout out of sections — each one can be a different type (Warmup, HIIT, Weightlifting, etc.) with its own settings and exercises. They\'ll play back in order, one after another.</div>';
+      exercisesLabelEl.style.display = "none";
+      addExerciseBtn.classList.add("hidden");
+      exerciseListWrap.innerHTML = "";
+      document.getElementById("multiSectionsWrap").classList.remove("hidden");
+      renderMultiSectionsList();
+      return;
+    }
+    document.getElementById("multiSectionsWrap").classList.add("hidden");
     exercisesLabelEl.style.display = "block";
     addExerciseBtn.classList.remove("hidden");
     var s = typeSettingsState[currentType];
@@ -3632,6 +3981,11 @@
   });
 
   function validateBuilder(){
+    if(builderMode === "workout" && currentType === "multi"){
+      var okMulti = multiSections.length > 0;
+      saveWorkoutBtn.disabled = !okMulti;
+      return okMulti;
+    }
     var ok = true;
     if(!currentType) ok = false;
     if(exercises.length === 0) ok = false;
@@ -3649,7 +4003,11 @@
     if(currentType === "circuit" && (!typeSettingsState.circuit.rounds || !typeSettingsState.circuit.transitionSec)) ok = false;
     if(currentType === "emom" && (!typeSettingsState.emom.intervalSec || !typeSettingsState.emom.rounds)) ok = false;
     if(currentType === "amrap" && !typeSettingsState.amrap.capMin) ok = false;
-    saveWorkoutBtn.disabled = !ok;
+    if(builderMode === "section"){
+      document.getElementById("saveSectionBtn").disabled = !ok;
+    } else {
+      saveWorkoutBtn.disabled = !ok;
+    }
     return ok;
   }
 
@@ -3673,9 +4031,16 @@
       type: currentType,
       bodyParts: selectedBodyParts.slice(),
       createdAt: (existing && existing.createdAt !== undefined) ? existing.createdAt : Date.now(),
-      settings: JSON.parse(JSON.stringify(typeSettingsState[currentType])),
-      exercises: exercises.map(function(e){ return { id:e.id, name:e.name.trim(), workSec:e.workSec, restSec:e.restSec, repTarget:e.repTarget, sets:e.sets, weight:e.weight }; })
+      favorite: existing ? !!existing.favorite : false
     };
+    if(currentType === "multi"){
+      workout.settings = {};
+      workout.exercises = [];
+      workout.sections = JSON.parse(JSON.stringify(multiSections));
+    } else {
+      workout.settings = JSON.parse(JSON.stringify(typeSettingsState[currentType]));
+      workout.exercises = exercises.map(function(e){ return { id:e.id, name:e.name.trim(), workSec:e.workSec, restSec:e.restSec, repTarget:e.repTarget, sets:e.sets, weight:e.weight }; });
+    }
     if(editingWorkoutId){
       var idx = workouts.findIndex(function(w){ return w.id === editingWorkoutId; });
       if(idx >= 0) workouts[idx] = workout; else workouts.push(workout);
@@ -3715,6 +4080,19 @@
   /* ===================== INTERVAL GENERATION ===================== */
   // Every workout compiles to a flat list of {label, sub, duration, kind} where kind is 'prepare'|'work'|'rest'
   function generateIntervals(w){
+    if(w.type === "multi"){
+      var combined = [];
+      (w.sections || []).forEach(function(section, idx){
+        var sectionIntervals = generateIntervals(section);
+        if(idx > 0 && sectionIntervals[0] && sectionIntervals[0].kind === "prepare"){
+          sectionIntervals[0].label = "Get Ready: " + (section.label || TYPE_LABELS[section.type] || "Next Section");
+        }
+        sectionIntervals.forEach(function(iv){ iv.sectionLabel = section.label || TYPE_LABELS[section.type]; });
+        combined = combined.concat(sectionIntervals);
+      });
+      return combined;
+    }
+
     var out = [];
     out.push({ label:"Get Ready", sub:"", duration:5, kind:"prepare" });
 
