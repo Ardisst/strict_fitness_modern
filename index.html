@@ -1388,12 +1388,21 @@
 
   /* ===================== STORAGE ===================== */
   var STORAGE_KEY = "setwork_workouts_v1";
+  var DEFAULTS_SEEDED_KEY = "setwork_defaults_seeded_v1";
   function loadWorkouts(){
+    var list = [];
     try{
       var raw = localStorage.getItem(STORAGE_KEY);
-      if(raw) return JSON.parse(raw);
+      list = raw ? JSON.parse(raw) : [];
+    }catch(e){ list = []; }
+    try{
+      if(localStorage.getItem(DEFAULTS_SEEDED_KEY) !== "1"){
+        list = list.concat(getDefaultWorkouts());
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        localStorage.setItem(DEFAULTS_SEEDED_KEY, "1");
+      }
     }catch(e){}
-    return getDefaultWorkouts();
+    return list;
   }
   function saveWorkouts(list){
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){}
