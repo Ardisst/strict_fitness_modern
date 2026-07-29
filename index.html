@@ -886,7 +886,9 @@
   <!-- ========== RANDOM WORKOUT SCREEN ========== -->
   <div class="screen hidden" id="screenRandom">
     <div class="topbar">
-      <button class="textbtn" id="randomBackBtn">Back</button>
+      <button class="textbtn icon-textbtn" id="randomBackBtn" title="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
       <h1 style="font-size:17px;">Random Workout</h1>
       <button class="iconbtn iconbtn-random-reroll" id="randomRerollBtn" title="Shuffle again">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
@@ -903,7 +905,7 @@
       <button class="filter-chip tag-bodypart" data-part="legs">Legs</button>
       <button class="filter-chip tag-bodypart" data-part="back">Back</button>
       <button class="filter-chip tag-bodypart" data-part="chest">Chest</button>
-      <button class="filter-chip tag-bodypart" data-part="cardio">Cardio</button>
+      <button class="filter-chip tag-bodypart" data-part="core">Core</button>
     </div>
     <div id="randomBody" style="flex:1; overflow-y:auto; padding:6px 18px 24px 18px;"></div>
     <div class="save-bar">
@@ -949,7 +951,7 @@
       <button class="filter-chip tag-bodypart" data-part="legs">Legs</button>
       <button class="filter-chip tag-bodypart" data-part="back">Back</button>
       <button class="filter-chip tag-bodypart" data-part="chest">Chest</button>
-      <button class="filter-chip tag-bodypart" data-part="cardio">Cardio</button>
+      <button class="filter-chip tag-bodypart" data-part="core">Core</button>
     </div>
     <div id="historyBody" style="flex:1; overflow-y:auto; padding:6px 18px 24px 18px;"></div>
   </div>
@@ -1111,10 +1113,24 @@
     </div>
   </div>
 
+  <div class="modal-overlay hidden" id="importChoiceModalOverlay">
+    <div class="modal-card">
+      <div class="modal-title" id="importChoiceTitle">Import Workouts?</div>
+      <p class="helper-text" style="text-align:center; margin:0 0 16px 0;">Merge updates any workouts that already match and adds the rest. Replace deletes everything currently saved first.</p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button class="modal-btn-primary" id="importMergeBtn" style="width:100%;">Merge</button>
+        <button class="modal-btn-secondary" id="importReplaceBtn" style="width:100%; color:var(--danger);">Replace Everything</button>
+        <button class="textbtn" id="importCancelBtn" style="width:100%; text-align:center; justify-content:center;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ========== TODAY'S WORKOUT PROGRAM SCREEN ========== -->
   <div class="screen hidden" id="screenTodayProgram">
     <div class="topbar">
-      <button class="textbtn" id="todayProgramBackBtn">Back</button>
+      <button class="textbtn icon-textbtn" id="todayProgramBackBtn" title="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
       <h1 style="font-size:17px;">Today's Program</h1>
       <span style="width:60px;"></span>
     </div>
@@ -1243,7 +1259,7 @@
         <button class="bodypart-chip" data-part="legs">Legs</button>
         <button class="bodypart-chip" data-part="back">Back</button>
         <button class="bodypart-chip" data-part="chest">Chest</button>
-        <button class="bodypart-chip" data-part="cardio">Cardio</button>
+        <button class="bodypart-chip" data-part="core">Core</button>
       </div>
 
       <div class="field-label" id="exercisesLabel" style="display:none;">Exercises</div>
@@ -1375,12 +1391,184 @@
   function loadWorkouts(){
     try{
       var raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
-    }catch(e){ return []; }
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return getDefaultWorkouts();
   }
   function saveWorkouts(list){
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){}
   }
+
+  // Premade starter workouts, seeded only the very first time the app runs
+  // (i.e. whenever nothing has been saved to localStorage yet). At least two
+  // per workout type, with body-part tags spread across arms/legs/back/chest/
+  // core so the filter bars have something in every category out of the box.
+  function getDefaultWorkouts(){
+    function ex(name, overrides){
+      var e = { id: uid(), name: name, workSec: null, restSec: null, repTarget: null, sets: null, weight: null };
+      return Object.assign(e, overrides || {});
+    }
+    var t0 = Date.now() - 1000 * 60 * 60 * 24 * 30; // stagger createdAt so "Newest" sort is stable and sensible
+    var i = 0;
+    function w(def){
+      i++;
+      return Object.assign({
+        id: uid(), createdAt: t0 + i * 60000, favorite: false, settings: {}, exercises: []
+      }, def);
+    }
+
+    return [
+      // ---------- TABATA ----------
+      w({ name:"Tabata Leg Blast", type:"tabata", bodyParts:["legs"],
+        settings:{ workSec:20, restSec:10, rounds:8, restBetween:20 },
+        exercises:[ ex("Squats"), ex("Lunges"), ex("Glute Bridge"), ex("Calf Raises") ] }),
+      w({ name:"Tabata Core Burner", type:"tabata", bodyParts:["core"],
+        settings:{ workSec:20, restSec:10, rounds:8, restBetween:15 },
+        exercises:[ ex("Plank"), ex("Russian Twists"), ex("Sit-ups"), ex("Mountain Climbers") ] }),
+
+      // ---------- HIIT ----------
+      w({ name:"HIIT Full Body Torch", type:"hiit", bodyParts:["legs","core","chest"],
+        settings:{ rounds:4, restBetween:60 },
+        exercises:[
+          ex("Burpees", { workSec:40, restSec:20 }),
+          ex("Mountain Climbers", { workSec:30, restSec:15 }),
+          ex("Push-ups", { workSec:30, restSec:15 }),
+          ex("High Knees", { workSec:30, restSec:15 })
+        ] }),
+      w({ name:"HIIT Upper Body Sculpt", type:"hiit", bodyParts:["arms","chest"],
+        settings:{ rounds:4, restBetween:45 },
+        exercises:[
+          ex("Push-ups", { workSec:30, restSec:15 }),
+          ex("Tricep Dips", { workSec:30, restSec:15 }),
+          ex("Shoulder Press", { workSec:30, restSec:15 }),
+          ex("Lateral Raises", { workSec:30, restSec:15 })
+        ] }),
+
+      // ---------- CIRCUIT ----------
+      w({ name:"Circuit Back & Core", type:"circuit", bodyParts:["back","core"],
+        settings:{ rounds:3, transitionSec:15, restBetween:60 },
+        exercises:[
+          ex("Bent-Over Row", { workSec:45, repTarget:12 }),
+          ex("Hyperextensions", { workSec:45, repTarget:12 }),
+          ex("Plank", { workSec:45 }),
+          ex("Russian Twists", { workSec:45, repTarget:20 })
+        ] }),
+      w({ name:"Circuit Full Body Strength", type:"circuit", bodyParts:["legs","chest","arms","core"],
+        settings:{ rounds:3, transitionSec:15, restBetween:60 },
+        exercises:[
+          ex("Goblet Squat", { workSec:45, repTarget:12 }),
+          ex("Push-ups", { workSec:45, repTarget:15 }),
+          ex("Kettlebell Swings", { workSec:45, repTarget:15 }),
+          ex("Farmers Carry", { workSec:45 })
+        ] }),
+
+      // ---------- TIMED ----------
+      w({ name:"Timed Chest & Arms", type:"timed", bodyParts:["chest","arms"],
+        exercises:[
+          ex("Bench Press", { workSec:60, repTarget:10 }),
+          ex("Incline Bench Press", { workSec:60, repTarget:10 }),
+          ex("Tricep Dips", { workSec:45, repTarget:15 }),
+          ex("Bicep Curls", { workSec:45, repTarget:15 })
+        ] }),
+      w({ name:"Timed Leg Day Express", type:"timed", bodyParts:["legs"],
+        exercises:[
+          ex("Back Squat", { workSec:60, repTarget:10 }),
+          ex("Romanian Deadlift", { workSec:60, repTarget:10 }),
+          ex("Bulgarian Split Squat", { workSec:45, repTarget:10 }),
+          ex("Calf Raises", { workSec:45, repTarget:20 })
+        ] }),
+
+      // ---------- EMOM ----------
+      w({ name:"EMOM Cardio Conditioning", type:"emom", bodyParts:["legs","core"],
+        settings:{ intervalSec:60, rounds:12 },
+        exercises:[ ex("Burpees"), ex("Jump Rope"), ex("High Knees"), ex("Mountain Climbers") ] }),
+      w({ name:"EMOM Strength Endurance", type:"emom", bodyParts:["legs","arms","core"],
+        settings:{ intervalSec:60, rounds:15 },
+        exercises:[ ex("Kettlebell Swings"), ex("Goblet Squat"), ex("Push-ups"), ex("Box Jumps") ] }),
+
+      // ---------- AMRAP ----------
+      w({ name:"AMRAP 15 Bodyweight", type:"amrap", bodyParts:["chest","legs","core"],
+        settings:{ capMin:15 },
+        exercises:[ ex("Push-ups", { repTarget:10 }), ex("Squats", { repTarget:15 }), ex("Sit-ups", { repTarget:20 }) ] }),
+      w({ name:"AMRAP 20 Engine Builder", type:"amrap", bodyParts:["legs","core"],
+        settings:{ capMin:20 },
+        exercises:[ ex("Burpees", { repTarget:10 }), ex("Kettlebell Swings", { repTarget:15 }), ex("Box Jumps", { repTarget:10 }), ex("Mountain Climbers", { repTarget:20 }) ] }),
+
+      // ---------- WARMUP ----------
+      w({ name:"Dynamic Full Body Warmup", type:"warmup", bodyParts:["legs","core"],
+        exercises:[
+          ex("Jumping Jacks", { workSec:30 }),
+          ex("High Knees", { workSec:30 }),
+          ex("Glute Bridge", { workSec:30, repTarget:15 }),
+          ex("Hip Abduction", { workSec:30, repTarget:15 })
+        ] }),
+      w({ name:"Upper Body Warmup", type:"warmup", bodyParts:["arms","chest"],
+        exercises:[
+          ex("Jumping Jacks", { workSec:30 }),
+          ex("Face Pulls", { workSec:30, repTarget:15 }),
+          ex("Lateral Raises", { workSec:30, repTarget:12 }),
+          ex("Shoulder Press", { workSec:30, repTarget:12 })
+        ] }),
+
+      // ---------- HYROX ----------
+      w({ name:"Hyrox Standard", type:"hyrox", bodyParts:["legs","core"],
+        exercises: getHyroxSeedExercises() }),
+      w({ name:"Hyrox Race Simulation", type:"hyrox", bodyParts:["legs","core","back"],
+        exercises: getHyroxSeedExercises() }),
+
+      // ---------- WEIGHTLIFTING ----------
+      w({ name:"Push Day Strength", type:"weightlifting", bodyParts:["chest","arms"],
+        exercises:[
+          ex("Bench Press", { sets:4, repTarget:8, restSec:90, weight:135 }),
+          ex("Overhead Press", { sets:3, repTarget:10, restSec:90, weight:65 }),
+          ex("Incline Bench Press", { sets:3, repTarget:10, restSec:75, weight:95 }),
+          ex("Tricep Extension", { sets:3, repTarget:12, restSec:60, weight:30 })
+        ] }),
+      w({ name:"Pull Day Strength", type:"weightlifting", bodyParts:["back","arms"],
+        exercises:[
+          ex("Deadlift", { sets:4, repTarget:6, restSec:120, weight:185 }),
+          ex("Bent-Over Row", { sets:4, repTarget:10, restSec:90, weight:95 }),
+          ex("Lat Pulldown", { sets:3, repTarget:10, restSec:75, weight:100 }),
+          ex("Hammer Curls", { sets:3, repTarget:12, restSec:60, weight:25 })
+        ] }),
+      w({ name:"Leg Day Strength", type:"weightlifting", bodyParts:["legs"],
+        exercises:[
+          ex("Back Squat", { sets:4, repTarget:8, restSec:120, weight:185 }),
+          ex("Romanian Deadlift", { sets:3, repTarget:10, restSec:90, weight:135 }),
+          ex("Leg Press", { sets:3, repTarget:12, restSec:75, weight:225 }),
+          ex("Calf Raises", { sets:3, repTarget:15, restSec:45, weight:90 })
+        ] }),
+
+      // ---------- MULTI ----------
+      w({ name:"Complete Upper Body Session", type:"multi", bodyParts:["chest","back","arms"], settings:{}, exercises:[],
+        sections:[
+          { id:uid(), type:"warmup", label:"Warmup", settings:{}, exercises:[
+            ex("Jumping Jacks", { workSec:30 }), ex("Lateral Raises", { workSec:30, repTarget:12 })
+          ]},
+          { id:uid(), type:"weightlifting", label:"Strength", settings:{}, exercises:[
+            ex("Bench Press", { sets:4, repTarget:8, restSec:90, weight:135 }),
+            ex("Bent-Over Row", { sets:4, repTarget:10, restSec:90, weight:95 })
+          ]},
+          { id:uid(), type:"hiit", label:"Finisher", settings:{ rounds:3, restBetween:45 }, exercises:[
+            ex("Push-ups", { workSec:30, restSec:15 }), ex("Tricep Dips", { workSec:30, restSec:15 })
+          ]}
+        ] }),
+      w({ name:"Legs + Core Complete Session", type:"multi", bodyParts:["legs","core"], settings:{}, exercises:[],
+        sections:[
+          { id:uid(), type:"warmup", label:"Warmup", settings:{}, exercises:[
+            ex("High Knees", { workSec:30 }), ex("Glute Bridge", { workSec:30, repTarget:15 })
+          ]},
+          { id:uid(), type:"weightlifting", label:"Strength", settings:{}, exercises:[
+            ex("Back Squat", { sets:4, repTarget:8, restSec:90, weight:135 }),
+            ex("Romanian Deadlift", { sets:3, repTarget:10, restSec:90, weight:115 })
+          ]},
+          { id:uid(), type:"amrap", label:"Core Finisher", settings:{ capMin:10 }, exercises:[
+            ex("Sit-ups", { repTarget:20 }), ex("Russian Twists", { repTarget:20 })
+          ]}
+        ] })
+    ];
+  }
+
   var workouts = loadWorkouts();
 
   var HISTORY_KEY = "setwork_history_v1";
@@ -2087,11 +2275,12 @@
       var name = get(r,"Workout Name").trim();
       var exName = get(r,"Exercise Name").trim();
       if(!name || !VALID_TYPES[type] || !exName){ skipped++; return; }
-      var key = get(r,"Workout ID").trim() || (name + "|" + type);
+      var csvId = get(r,"Workout ID").trim();
+      var key = csvId || (name + "|" + type);
       if(!byKey[key]){
         var bpRaw = get(r,"Body Parts").trim();
         var bodyParts = bpRaw ? bpRaw.split("|").map(function(s){ return s.trim(); }).filter(function(s){ return BODY_PARTS.indexOf(s) !== -1; }) : [];
-        byKey[key] = { id: uid(), name: name, type: type, bodyParts: bodyParts, createdAt: Date.now(), settings: {}, exercises: [], sectionsByOrder: {} };
+        byKey[key] = { id: csvId || uid(), name: name, type: type, bodyParts: bodyParts, createdAt: Date.now(), settings: {}, exercises: [], sectionsByOrder: {} };
         order.push(key);
       }
       var w = byKey[key];
@@ -2190,6 +2379,7 @@
     importFileInput.value = "";
     importFileInput.click();
   });
+  var pendingImportParsed = null;
   importFileInput.addEventListener("change", function(){
     var file = importFileInput.files && importFileInput.files[0];
     if(!file) return;
@@ -2204,21 +2394,44 @@
         alert("No valid workout rows found in that file.");
         return;
       }
-      var msg = "Import " + parsed.workouts.length + " workout(s)" +
-        (parsed.skipped ? " (" + parsed.skipped + " row(s) skipped as invalid)" : "") +
-        ".\n\nOK = Merge with your current workouts\nCancel = Replace all current workouts";
-      var mode = confirm(msg) ? "merge" : "replace";
-      if(mode === "replace"){
-        if(!confirm("This will delete your current workouts and replace them with the imported table. Continue?")) return;
-        workouts = parsed.workouts;
-      } else {
-        parsed.workouts.forEach(function(w){ workouts.push(w); });
-      }
-      saveWorkouts(workouts);
-      renderWorkoutsList();
-      alert("Import complete.");
+      pendingImportParsed = parsed;
+      document.getElementById("importChoiceTitle").textContent =
+        "Import " + parsed.workouts.length + " workout(s)" + (parsed.skipped ? " (" + parsed.skipped + " row(s) skipped)" : "") + "?";
+      document.getElementById("importChoiceModalOverlay").classList.remove("hidden");
     };
     reader.readAsText(file);
+  });
+  document.getElementById("importCancelBtn").addEventListener("click", function(){
+    pendingImportParsed = null;
+    document.getElementById("importChoiceModalOverlay").classList.add("hidden");
+  });
+  document.getElementById("importMergeBtn").addEventListener("click", function(){
+    if(!pendingImportParsed) return;
+    pendingImportParsed.workouts.forEach(function(w){
+      var existingIdx = workouts.findIndex(function(x){ return x.id === w.id; });
+      if(existingIdx !== -1){
+        w.favorite = workouts[existingIdx].favorite; // preserve favorite status across a re-import
+        workouts[existingIdx] = w;
+      } else {
+        workouts.push(w);
+      }
+    });
+    saveWorkouts(workouts);
+    renderWorkoutsList();
+    document.getElementById("importChoiceModalOverlay").classList.add("hidden");
+    pendingImportParsed = null;
+    alert("Import complete.");
+  });
+  document.getElementById("importReplaceBtn").addEventListener("click", function(){
+    if(!pendingImportParsed) return;
+    document.getElementById("importChoiceModalOverlay").classList.add("hidden");
+    showConfirmModal("This will delete your current workouts and replace them with the imported table. Continue?", function(){
+      workouts = pendingImportParsed.workouts;
+      saveWorkouts(workouts);
+      renderWorkoutsList();
+      pendingImportParsed = null;
+      alert("Import complete.");
+    });
   });
 
   /* ===================== WAKE LOCK ===================== */
@@ -2336,8 +2549,8 @@
     weightlifting: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M4 9v6M20 9v6M8 6.5v11M16 6.5v11"/></svg>',
     multi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg>'
   };
-  var BODY_PARTS = ["arms","legs","back","chest","cardio"];
-  var BODY_PART_LABELS = { arms:"Arms", legs:"Legs", back:"Back", chest:"Chest", cardio:"Cardio" };
+  var BODY_PARTS = ["arms","legs","back","chest","core"];
+  var BODY_PART_LABELS = { arms:"Arms", legs:"Legs", back:"Back", chest:"Chest", core:"Core" };
   function bodyPartTagsHTML(parts){
     if(!parts || !parts.length) return "";
     return parts.map(function(p){
@@ -2643,7 +2856,7 @@
     Array.prototype.forEach.call(wrap.querySelectorAll(".recent-workout-row"), function(row){
       row.addEventListener("click", function(){
         var h = history.find(function(x){ return x.id === row.dataset.id; });
-        if(h) openHistoryDetail(h);
+        if(h) openHistoryDetail(h, "home");
       });
     });
   }
@@ -2682,7 +2895,7 @@
     Array.prototype.forEach.call(wrap.querySelectorAll(".recent-workout-row"), function(row){
       row.addEventListener("click", function(){
         var w = getWorkoutById(row.dataset.workoutId);
-        if(w) openPreview(w);
+        if(w) openPreview(w, "home");
       });
     });
   }
@@ -2776,10 +2989,11 @@
     renderWorkoutsList();
   }
   function deleteWorkout(w){
-    if(!confirm('Delete "' + w.name + '"?')) return;
-    workouts = workouts.filter(function(x){ return x.id !== w.id; });
-    saveWorkouts(workouts);
-    renderWorkoutsList();
+    showConfirmModal('Delete "' + w.name + '"?', function(){
+      workouts = workouts.filter(function(x){ return x.id !== w.id; });
+      saveWorkouts(workouts);
+      renderWorkoutsList();
+    });
   }
 
   document.getElementById("newWorkoutBtn").addEventListener("click", function(){ openBuilder(null); });
@@ -2914,15 +3128,17 @@
 
   var previewHeartBtn = document.getElementById("previewHeartBtn");
   previewHeartBtn.innerHTML = ICON_HEART;
+  var previewReturnScreen = "workouts";
 
-  function openPreview(w){
+  function openPreview(w, returnScreen){
     currentPreviewWorkout = w;
+    previewReturnScreen = returnScreen || "workouts";
     document.getElementById("previewBody").innerHTML = buildWorkoutDetailHTML(w);
     previewHeartBtn.classList.toggle("favorited", !!w.favorite);
     showScreen("preview");
   }
 
-  document.getElementById("previewBackBtn").addEventListener("click", function(){ showScreen("workouts"); });
+  document.getElementById("previewBackBtn").addEventListener("click", function(){ showScreen(previewReturnScreen); });
   document.getElementById("previewEditBtn").addEventListener("click", function(){ openBuilder(currentPreviewWorkout); });
   document.getElementById("previewStartBtn").addEventListener("click", function(){ startWorkout(currentPreviewWorkout); });
   previewHeartBtn.addEventListener("click", function(){
@@ -3092,7 +3308,7 @@
       '{ "name": string, "type": string, "bodyParts": string[], "settings": object, "exercises": object[] }',
       "",
       "\"type\" must be exactly one of: tabata, hiit, circuit, timed, emom, amrap, warmup, weightlifting.",
-      "\"bodyParts\" entries must only be from: arms, legs, back, chest, cardio (include the ones this workout targets, can be more than one, or empty array if not applicable).",
+      "\"bodyParts\" entries must only be from: arms, legs, back, chest, core (include the ones this workout targets, can be more than one, or empty array if not applicable).",
       "",
       "\"settings\" and \"exercises\" shape depends on type:",
       "- tabata: settings { workSec, restSec, rounds, restBetween } (numbers, seconds/count). exercises: [{ name }] — each exercise cycles through all rounds before moving to the next.",
@@ -3355,7 +3571,9 @@
     return html;
   }
 
-  function openHistoryDetail(h){
+  var historyDetailReturnScreen = "history";
+  function openHistoryDetail(h, returnScreen){
+    historyDetailReturnScreen = returnScreen || "history";
     document.getElementById("historyDetailBody").innerHTML = buildHistoryDetailHTML(h);
     showScreen("historyDetail");
   }
@@ -3377,14 +3595,15 @@
     renderHistoryScreen();
   });
 
-  document.getElementById("historyDetailBackBtn").addEventListener("click", function(){ showScreen("history"); });
+  document.getElementById("historyDetailBackBtn").addEventListener("click", function(){ showScreen(historyDetailReturnScreen); });
   document.getElementById("historyClearBtn").addEventListener("click", function(){
     if(history.length === 0) return;
-    if(!confirm("Clear all workout history? This can't be undone.")) return;
-    history = [];
-    saveHistoryList();
-    renderHistoryScreen();
-    renderHomeScreen();
+    showConfirmModal("Clear all workout history? This can't be undone.", function(){
+      history = [];
+      saveHistoryList();
+      renderHistoryScreen();
+      renderHomeScreen();
+    });
   });
 
   /* ===================== BUILDER ===================== */
@@ -4439,16 +4658,16 @@
     }
   });
   document.getElementById("quitBtn").addEventListener("click", function(){
-    if(confirm("Quit this workout?")){
+    showConfirmModal("Quit this workout?", function(){
       stopTimerEngine();
       workoutQueue = null;
       showScreen("workouts");
-    }
+    });
   });
   document.getElementById("finishBtn").addEventListener("click", function(){
-    if(confirm("Finish this workout now? It'll be logged as completed.")){
+    showConfirmModal("Finish this workout now? It'll be logged as completed.", function(){
       finishWorkout();
-    }
+    });
   });
 
   function computeElapsedSec(){
