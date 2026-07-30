@@ -116,12 +116,12 @@
   .ai-entry-btn{
     display:flex; align-items:center; justify-content:center; gap:6px;
     background:var(--grad-soft); border:1px solid rgba(77,210,255,0.3); color:var(--work);
-    border-radius:12px; padding:8px 12px; font-size:12.5px; font-weight:800;
+    border-radius:12px; padding:6px 12px; font-size:12.5px; font-weight:800;
   }
   .ai-entry-btn svg{ width:14px; height:14px; }
   .sort-btn{
     display:flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--line);
-    color:var(--text-dim); border-radius:14px; padding:11px 14px; font-size:13px; font-weight:800;
+    color:var(--text-dim); border-radius:14px; padding:8px 14px; font-size:13px; font-weight:800;
     box-shadow:var(--shadow-card); white-space:nowrap; flex-shrink:0;
   }
   .sort-btn svg{ width:16px; height:16px; }
@@ -781,9 +781,12 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
       </button>
       <h1 style="font-size:17px;">Workouts</h1>
-      <button class="iconbtn iconbtn-shuffle" id="randomOpenBtn" title="Random workout">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
-      </button>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="heart-btn" id="favFilterBtn" title="Show favorites only"></button>
+        <button class="iconbtn iconbtn-shuffle" id="randomOpenBtn" title="Random workout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+        </button>
+      </div>
     </div>
     <div class="workouts-toolbar">
       <button class="ai-entry-btn" id="aiWorkoutOpenBtn">
@@ -2527,6 +2530,7 @@
   var emptyStateEl = document.getElementById("emptyState");
   var filterBarEl = document.getElementById("filterBar");
   var currentFilter = "all";
+  var favoritesFilterActive = false;
   var workoutSortMode = "newest"; // newest | oldest | name
   function sortWorkoutList(list){
     var withIndex = list.map(function(w, i){ return { w:w, i:i }; });
@@ -2931,6 +2935,9 @@
       return;
     }
     var list = (currentFilter === "all") ? workouts : workouts.filter(function(w){ return w.type === currentFilter; });
+    if(favoritesFilterActive){
+      list = list.filter(function(w){ return w.favorite; });
+    }
     if(searchQuery){
       list = list.filter(function(w){ return w.name.toLowerCase().indexOf(searchQuery) !== -1; });
     }
@@ -2938,6 +2945,8 @@
       emptyStateEl.classList.remove("hidden");
       if(searchQuery){
         emptyStateEl.innerHTML = '<div class="big">🔍</div><p>No workouts match "' + escapeHtml(searchInput.value.trim()) + '".</p>';
+      } else if(favoritesFilterActive){
+        emptyStateEl.innerHTML = '<div class="big">🤍</div><p>No favorited workouts yet.<br>Tap the heart on any workout to add it here.</p>';
       } else {
         emptyStateEl.innerHTML = '<div class="big">🔍</div><p>No ' + escapeHtml(TYPE_LABELS[currentFilter] || "") + ' workouts yet.</p>';
       }
@@ -3215,6 +3224,24 @@
     renderRandomScreen();
   }
 
+  var favFilterBtn = document.getElementById("favFilterBtn");
+  favFilterBtn.innerHTML = ICON_HEART;
+  favFilterBtn.addEventListener("click", function(){
+    favoritesFilterActive = !favoritesFilterActive;
+    favFilterBtn.classList.toggle("favorited", favoritesFilterActive);
+    if(favoritesFilterActive){
+      favFilterBtn.classList.remove("animate-pop");
+      void favFilterBtn.offsetWidth;
+      favFilterBtn.classList.add("animate-pop");
+    }
+    // Whichever way this toggles, the type filter resets to "All" so the two
+    // controls never end up in a confusing combined state.
+    currentFilter = "all";
+    Array.prototype.forEach.call(filterBarEl.querySelectorAll(".filter-chip"), function(c){
+      c.classList.toggle("active", c.dataset.filter === "all");
+    });
+    renderWorkoutsList();
+  });
   document.getElementById("randomOpenBtn").addEventListener("click", function(){
     randomDurationFilter = "all";
     randomBodyPartFilter = "all";
