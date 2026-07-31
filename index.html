@@ -26,6 +26,7 @@
     --hyrox: #ff5e3a;
     --weightlifting: #94a3b8;
     --multi: #7dd3fc;
+    --ladder: #60a5fa;
     --silver: #94a3b8;
     --radius: 18px;
     --grad: linear-gradient(135deg, #2f6fe0 0%, #4dd2ff 55%, #94a3b8 100%);
@@ -56,6 +57,7 @@
     --hyrox: #d1451b;
     --weightlifting: #64748b;
     --multi: #0369a1;
+    --ladder: #1d4ed8;
     --silver: #64748b;
     --grad: linear-gradient(135deg, #1d4ed8 0%, #0d84a3 55%, #64748b 100%);
     --grad-dark: linear-gradient(135deg, #1e3a8a 0%, #0c4a5c 55%, #334155 100%);
@@ -236,6 +238,7 @@
   #filterBar .filter-chip.tag-hyrox.active{ background:linear-gradient(135deg,#b8380a,var(--hyrox)); }
   #filterBar .filter-chip.tag-weightlifting.active{ background:linear-gradient(135deg,#475569,var(--weightlifting)); }
   #filterBar .filter-chip.tag-multi.active{ background:linear-gradient(135deg,#1e3a8a,var(--multi)); }
+  #filterBar .filter-chip.tag-ladder.active{ background:linear-gradient(135deg,#1e3a8a,var(--ladder)); }
 
   .topbar-actions-wrap{ position:relative; flex-shrink:0; }
   .iconbtn-settings{ background:var(--surface); border-color:var(--line); color:var(--text-dim); }
@@ -339,6 +342,7 @@
   .tag-hyrox{ background:rgba(255,94,58,0.14); color:var(--hyrox); }
   .tag-weightlifting{ background:rgba(148,163,184,0.16); color:var(--weightlifting); }
   .tag-multi{ background:rgba(125,211,252,0.16); color:var(--multi); }
+  .tag-ladder{ background:rgba(96,165,250,0.16); color:var(--ladder); }
   .tag-all{ background:rgba(255,255,255,0.10); color:var(--text); }
 
   .tag-bodypart{ background:var(--text-dim); color:var(--surface); }
@@ -422,6 +426,7 @@
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
   .subfield-label{ font-size:11px; color:var(--text-dim); margin-bottom:6px; }
+  .subfield-hint{ opacity:0.65; text-transform:none; font-weight:600; letter-spacing:normal; }
   .stepper-field{ display:flex; align-items:center; gap:8px; }
   .stepper-field input[type=number]{ flex:1; min-width:0; padding:13px 6px; }
   .stepper-btn{
@@ -440,6 +445,9 @@
   }
   .exercise-item.dragging{
     box-shadow:0 16px 32px -8px rgba(0,0,0,0.45); z-index:20; opacity:0.92;
+  }
+  .ex-row.dragging{
+    box-shadow:0 16px 32px -8px rgba(0,0,0,0.45); z-index:20; opacity:0.92; transition:none;
   }
   .exercise-item .exhead{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
   .exercise-item .exhead input{ flex:1; }
@@ -677,10 +685,11 @@
   .badge-grad-hyrox{ background:linear-gradient(135deg,#475569,#94a3b8); }
   .badge-grad-weightlifting{ background:linear-gradient(135deg,#64748b,#cbd5e1); }
   .badge-grad-multi{ background:linear-gradient(135deg,#1e3a8a,#38bdf8,#cbd5e1); }
+  .badge-grad-ladder{ background:linear-gradient(135deg,#1e3a8a,#94a3b8); }
 
   /* ===================== V2: SETTINGS SCREEN ===================== */
   .settings-logo-wrap{ display:flex; justify-content:center; padding:10px 0 24px 0; }
-  .settings-logo-wrap .logo-img{ height:64px; width:auto; }
+  .settings-logo-wrap .logo-img{ height:100px; width:auto; }
   .settings-group-label{
     font-size:12px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase;
     color:var(--text-dim); margin:22px 0 8px 4px;
@@ -815,6 +824,7 @@
       <button class="filter-chip tag-hyrox" data-filter="hyrox">Hyrox</button>
       <button class="filter-chip tag-weightlifting" data-filter="weightlifting">Weightlifting</button>
       <button class="filter-chip tag-multi" data-filter="multi">Multi</button>
+      <button class="filter-chip tag-ladder" data-filter="ladder">Ladder</button>
     </div>
     <div id="homeList" style="position:relative; flex:1; overflow-y:auto;">
       <div id="emptyState" class="empty-state hidden">
@@ -1234,6 +1244,10 @@
           <div class="t">Multi</div>
           <div class="d">Combine multiple types into one workout — e.g. a warmup, then weightlifting, then a HIIT finisher.</div>
         </button>
+        <button class="type-opt" data-type="ladder">
+          <div class="t">Ladder</div>
+          <div class="d">Work down (or up) through a rep ladder — e.g. 10-8-6-4-2. Do every exercise at each rung, then tap Complete Round.</div>
+        </button>
       </div>
       <div class="chip-row" id="typeChipRow">
         <button class="chip" data-type="tabata">Tabata</button>
@@ -1246,6 +1260,7 @@
         <button class="chip" data-type="hyrox">Hyrox</button>
         <button class="chip" data-type="weightlifting">Weightlifting</button>
         <button class="chip" data-type="multi">Multi</button>
+        <button class="chip" data-type="ladder">Ladder</button>
       </div>
 
       <div id="typeSettings"></div>
@@ -1646,7 +1661,8 @@
     return workouts.find(function(w){ return w.id === id; });
   }
   function getScheduleForDate(dk){
-    return schedule.filter(function(s){ return s.date === dk; });
+    return schedule.filter(function(s){ return s.date === dk; })
+      .sort(function(a,b){ return (a.order||0) - (b.order||0); });
   }
   // Upcoming, uncompleted scheduled entries from today onward, soonest first.
   function getUpcomingSchedule(){
@@ -1741,7 +1757,8 @@
     list.innerHTML = entries.map(function(s){
       var w = getWorkoutById(s.workoutId);
       if(!w) return "";
-      return '<div class="ex-row" data-sched-id="' + s.id + '" data-workout-id="' + w.id + '" style="cursor:pointer;">' +
+      return '<div class="ex-row" data-sched-id="' + s.id + '" data-workout-id="' + w.id + '" style="cursor:pointer; position:relative;">' +
+        '<span class="ex-grip" data-sched-id="' + s.id + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="15" cy="18" r="1.3"/></svg></span>' +
         '<div class="type-badge ' + (TYPE_BADGE_CLASS[w.type]||"badge-grad-timed") + '" style="width:32px; height:32px; border-radius:10px; flex-shrink:0;">' + (TYPE_ICON_SVG[w.type]||"") + '</div>' +
         '<span style="flex:1; min-width:0;">' + escapeHtml(w.name) + (s.seriesId ? ' <span style="color:var(--text-dim); font-weight:600; font-size:12px;">&middot; repeats</span>' : '') + '</span>' +
         '<svg class="ex-row-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>' +
@@ -1750,7 +1767,7 @@
     }).join("");
     Array.prototype.forEach.call(list.querySelectorAll(".ex-row"), function(row){
       row.addEventListener("click", function(e){
-        if(e.target.closest(".remove-sched-btn")) return;
+        if(e.target.closest(".remove-sched-btn") || e.target.closest(".ex-grip")) return;
         openWorkoutQuickPreview(row.dataset.workoutId, "viewonly");
       });
     });
@@ -1767,6 +1784,53 @@
           renderCalendar();
           renderHomeScreen();
         }
+      });
+    });
+    Array.prototype.forEach.call(list.querySelectorAll(".ex-grip"), function(grip){
+      grip.addEventListener("pointerdown", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        var row = grip.closest(".ex-row");
+        var rows = Array.prototype.slice.call(list.querySelectorAll(".ex-row"));
+        var startIndex = rows.indexOf(row);
+        var startY = e.clientY;
+        row.classList.add("dragging");
+        try{ grip.setPointerCapture(e.pointerId); }catch(err){}
+
+        function onMove(ev){
+          var dy = ev.clientY - startY;
+          row.style.transform = "translateY(" + dy + "px)";
+        }
+        function onUp(ev){
+          row.style.transform = "";
+          row.classList.remove("dragging");
+          grip.removeEventListener("pointermove", onMove);
+          grip.removeEventListener("pointerup", onUp);
+          grip.removeEventListener("pointercancel", onUp);
+          var others = rows.filter(function(r){ return r !== row; });
+          var targetIndex = 0;
+          others.forEach(function(other){
+            var r = other.getBoundingClientRect();
+            var mid = r.top + r.height/2;
+            if(ev.clientY > mid) targetIndex++;
+          });
+          if(targetIndex !== startIndex){
+            var movedId = row.dataset.schedId;
+            var idsInOrder = rows.map(function(r){ return r.dataset.schedId; });
+            idsInOrder.splice(startIndex, 1);
+            idsInOrder.splice(targetIndex, 0, movedId);
+            idsInOrder.forEach(function(id, idx){
+              var entry = schedule.find(function(s){ return s.id === id; });
+              if(entry) entry.order = idx;
+            });
+            saveSchedule();
+            renderDayDetailList();
+            renderHomeScreen();
+          }
+        }
+        grip.addEventListener("pointermove", onMove);
+        grip.addEventListener("pointerup", onUp);
+        grip.addEventListener("pointercancel", onUp);
       });
     });
   }
@@ -2197,7 +2261,7 @@
   // One row per exercise. Workout-level settings are repeated on every row that
   // belongs to that workout (standard flattening for hierarchical -> spreadsheet data).
   var CSV_HEADERS = ["Workout ID","Workout Name","Type","Body Parts","Rounds","Work Sec","Rest Sec",
-    "Rest Between Sec","Transition Sec","Interval Sec","Time Cap Min",
+    "Rest Between Sec","Transition Sec","Interval Sec","Time Cap Min","Start Reps","End Reps","Step",
     "Exercise Order","Exercise Name","Exercise Work Sec","Exercise Rest Sec","Exercise Rep Target","Exercise Sets","Exercise Weight",
     "Section Order","Section Type","Section Label"];
 
@@ -2221,6 +2285,7 @@
               w.id, w.name, w.type, bp,
               blank(s.rounds), blank(s.workSec), blank(s.restSec),
               blank(s.restBetween), blank(s.transitionSec), blank(s.intervalSec), blank(s.capMin),
+              blank(s.startReps), blank(s.endReps), blank(s.step),
               idx+1, ex.name, blank(ex.workSec), blank(ex.restSec), blank(ex.repTarget), blank(ex.sets), blank(ex.weight),
               sIdx+1, section.type, section.label || ""
             ]));
@@ -2233,6 +2298,7 @@
             w.id, w.name, w.type, bp,
             blank(s.rounds), blank(s.workSec), blank(s.restSec),
             blank(s.restBetween), blank(s.transitionSec), blank(s.intervalSec), blank(s.capMin),
+            blank(s.startReps), blank(s.endReps), blank(s.step),
             idx+1, ex.name, blank(ex.workSec), blank(ex.restSec), blank(ex.repTarget), blank(ex.sets), blank(ex.weight),
             "", "", ""
           ]));
@@ -2263,11 +2329,12 @@
     return rows;
   }
 
-  var VALID_TYPES = { tabata:1, hiit:1, circuit:1, timed:1, emom:1, amrap:1, warmup:1, hyrox:1, weightlifting:1, multi:1 };
+  var VALID_TYPES = { tabata:1, hiit:1, circuit:1, timed:1, emom:1, amrap:1, warmup:1, hyrox:1, weightlifting:1, multi:1, ladder:1 };
   var SETTING_COL_MAP = {
     "Rounds":"rounds", "Work Sec":"workSec", "Rest Sec":"restSec",
     "Rest Between Sec":"restBetween", "Transition Sec":"transitionSec",
-    "Interval Sec":"intervalSec", "Time Cap Min":"capMin"
+    "Interval Sec":"intervalSec", "Time Cap Min":"capMin",
+    "Start Reps":"startReps", "End Reps":"endReps", "Step":"step"
   };
 
   function csvToWorkouts(text){
@@ -2547,9 +2614,9 @@
   }
   var searchQuery = "";
 
-  var TYPE_LABELS = { tabata:"Tabata", hiit:"HIIT", circuit:"Circuit", timed:"Timed", emom:"EMOM", amrap:"AMRAP", warmup:"Warmup", hyrox:"Hyrox", weightlifting:"Weightlifting", multi:"Multi" };
-  var TYPE_TAGCLASS = { tabata:"tag-tabata", hiit:"tag-hiit", circuit:"tag-circuit", timed:"tag-timed", emom:"tag-emom", amrap:"tag-amrap", warmup:"tag-warmup", hyrox:"tag-hyrox", weightlifting:"tag-weightlifting", multi:"tag-multi" };
-  var TYPE_BADGE_CLASS = { tabata:"badge-grad-tabata", hiit:"badge-grad-hiit", circuit:"badge-grad-circuit", timed:"badge-grad-timed", emom:"badge-grad-emom", amrap:"badge-grad-amrap", warmup:"badge-grad-warmup", hyrox:"badge-grad-hyrox", weightlifting:"badge-grad-weightlifting", multi:"badge-grad-multi" };
+  var TYPE_LABELS = { tabata:"Tabata", hiit:"HIIT", circuit:"Circuit", timed:"Timed", emom:"EMOM", amrap:"AMRAP", warmup:"Warmup", hyrox:"Hyrox", weightlifting:"Weightlifting", multi:"Multi", ladder:"Ladder" };
+  var TYPE_TAGCLASS = { tabata:"tag-tabata", hiit:"tag-hiit", circuit:"tag-circuit", timed:"tag-timed", emom:"tag-emom", amrap:"tag-amrap", warmup:"tag-warmup", hyrox:"tag-hyrox", weightlifting:"tag-weightlifting", multi:"tag-multi", ladder:"tag-ladder" };
+  var TYPE_BADGE_CLASS = { tabata:"badge-grad-tabata", hiit:"badge-grad-hiit", circuit:"badge-grad-circuit", timed:"badge-grad-timed", emom:"badge-grad-emom", amrap:"badge-grad-amrap", warmup:"badge-grad-warmup", hyrox:"badge-grad-hyrox", weightlifting:"badge-grad-weightlifting", multi:"badge-grad-multi", ladder:"badge-grad-ladder" };
   var TYPE_ICON_SVG = {
     tabata: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>',
     hiit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>',
@@ -2560,7 +2627,8 @@
     warmup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>',
     hyrox: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 100-2 1 1 0 000 2zm-3 11.5L9 12l4-2 1.5 3.5 3 1"/></svg>',
     weightlifting: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M4 9v6M20 9v6M8 6.5v11M16 6.5v11"/></svg>',
-    multi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg>'
+    multi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg>',
+    ladder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v18M18 3v18M6 7h12M6 12h12M6 17h12"/></svg>'
   };
   var BODY_PARTS = ["arms","legs","back","chest","core"];
   var BODY_PART_LABELS = { arms:"Arms", legs:"Legs", back:"Back", chest:"Chest", core:"Core" };
@@ -3052,6 +3120,9 @@
     if(w.type === "timed" || w.type === "warmup") return "Straight through, no repeats";
     if(w.type === "hyrox") return "Official race order — 8× 1km runs + 8 stations, straight through";
     if(w.type === "weightlifting") return "Untimed sets — tap Complete Set to start each rest";
+    if(w.type === "ladder"){
+      return "Ladder " + s.startReps + "-" + s.endReps + " (step " + s.step + ") · " + s.restBetween + "s between rounds";
+    }
     return "";
   }
 
@@ -3697,7 +3768,8 @@
     amrap: { capMin:10 },
     warmup: {},
     hyrox: {},
-    weightlifting: {}
+    weightlifting: {},
+    ladder: { startReps:10, endReps:2, step:2, restBetween:60 }
   };
 
   // The official HYROX race sequence: 8 x 1km runs alternating with 8 fixed
@@ -3975,8 +4047,8 @@
       html =
         '<div class="field-label">Tabata Settings</div>' +
         '<div class="row2">' +
-          field("Work (sec)", "t_work", s.workSec, 5) +
-          field("Rest (sec)", "t_rest", s.restSec, 5) +
+          field("Work", "t_work", s.workSec, 5, 0, true) +
+          field("Rest", "t_rest", s.restSec, 5, 0, true) +
         '</div>' +
         '<div class="row2">' +
           field("Rounds", "t_rounds", s.rounds, 1) +
@@ -3987,7 +4059,7 @@
         '<div class="field-label">HIIT Settings</div>' +
         '<div class="row2">' +
           field("Rounds (full list)", "h_rounds", s.rounds, 1) +
-          field("Rest between rounds (sec)", "h_restbetween", s.restBetween, 5) +
+          field("Rest between rounds", "h_restbetween", s.restBetween, 5, 0, true) +
         '</div>' +
         '<div class="helper-text">Each exercise has its own work/rest time. The whole list repeats for this many rounds.</div>';
     } else if(currentType === "circuit"){
@@ -3995,10 +4067,10 @@
         '<div class="field-label">Circuit Settings</div>' +
         '<div class="row2">' +
           field("Rounds", "c_rounds", s.rounds, 1) +
-          field("Transition (sec)", "c_transition", s.transitionSec, 5) +
+          field("Transition", "c_transition", s.transitionSec, 5, 0, true) +
         '</div>' +
         '<div class="row2">' +
-          field("Rest btwn rounds (sec)", "c_restbetween", s.restBetween, 5) +
+          field("Rest btwn rounds", "c_restbetween", s.restBetween, 5, 0, true) +
         '</div>' +
         '<div class="helper-text">Move through every station once per round, with a short transition between each. Rest happens after a full round.</div>';
     } else if(currentType === "timed"){
@@ -4007,7 +4079,7 @@
       html =
         '<div class="field-label">EMOM Settings</div>' +
         '<div class="row2">' +
-          field("Interval (sec)", "e_interval", s.intervalSec, 5) +
+          field("Interval", "e_interval", s.intervalSec, 5, 0, true) +
           field("Rounds (minutes)", "e_rounds", s.rounds, 1) +
         '</div>' +
         '<div class="helper-text">A new interval starts every "Interval" seconds (60 = a true EMOM). Your exercise list cycles in order, wrapping if it\'s shorter than the round count — whatever time is left after your reps is your rest.</div>';
@@ -4024,20 +4096,57 @@
       html = '<div class="helper-text">The official HYROX race format: 8× 1km runs alternating with 8 fixed stations, always in this exact order — SkiErg, Sled Push, Sled Pull, Burpee Broad Jumps, Row, Farmers Carry, Sandbag Lunges, Wall Balls. Picking this type auto-fills the full sequence with standard distances/weights below — edit the target times to match your own goal pace, or adjust weights for your division.</div>';
     } else if(currentType === "weightlifting"){
       html = '<div class="helper-text">List each exercise with its own rep target, rest between sets, and number of sets. Sets aren\'t on a running clock — during the workout, tap "Complete Set" whenever you finish a set to start the rest timer.</div>';
+    } else if(currentType === "ladder"){
+      html =
+        '<div class="field-label">Ladder Settings</div>' +
+        '<div class="row2">' +
+          field("Start Reps", "l_start", s.startReps, 1) +
+          field("End Reps", "l_end", s.endReps, 1) +
+        '</div>' +
+        '<div class="row2">' +
+          field("Step", "l_step", s.step, 1, 1) +
+          field("Rest Between Rounds", "l_restbetween", s.restBetween, 5, 0, true) +
+        '</div>' +
+        '<div class="helper-text">Every exercise below is done back-to-back at each rung\'s rep count, all in one continuous round — tap "Complete Round" once you\'ve finished all of them, then rest before the next rung. Start higher than End to count down (10-8-6-4-2), or lower than End to count up.</div>';
     }
     typeSettingsEl.innerHTML = html;
     bindTypeSettingInputs();
     exercisesLabelEl.textContent = (currentType === "amrap") ? "Round Exercises" : "Exercises";
   }
 
-  function field(label, id, value, step, min){
+  // Converts total seconds to an "M:SS" display string, e.g. 195 -> "3:15".
+  function secToMMSS(totalSec){
+    totalSec = Math.max(0, Math.round(totalSec || 0));
+    var m = Math.floor(totalSec / 60), s = totalSec % 60;
+    return m + ":" + (s < 10 ? "0" + s : s);
+  }
+  // Parses a typed value back into total seconds. Accepts "M:SS" (e.g. "3:15")
+  // as well as a plain number of seconds (e.g. "195"), so either way of typing
+  // works — you don't have to do the minutes math yourself, but you can still
+  // type raw seconds if that's easier for a short duration.
+  function parseTimeInput(str){
+    str = (str || "").trim();
+    if(str === "") return NaN;
+    if(str.indexOf(":") !== -1){
+      var parts = str.split(":");
+      var m = parseInt(parts[0], 10); if(isNaN(m)) m = 0;
+      var s = parseInt(parts[1], 10); if(isNaN(s)) s = 0;
+      return m * 60 + s;
+    }
+    var n = parseFloat(str);
+    return isNaN(n) ? NaN : Math.round(n);
+  }
+
+  function field(label, id, value, step, min, isTime){
     step = (step === undefined || step === null) ? 1 : step;
     min = (min === undefined || min === null) ? 0 : min;
-    return '<div><div class="subfield-label">'+label+'</div>' +
+    var displayValue = (value == null) ? "" : (isTime ? secToMMSS(value) : value);
+    var timeAttrs = isTime ? ' data-time="1" placeholder="0:00" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"' : "";
+    return '<div><div class="subfield-label">'+label+(isTime ? ' <span class="subfield-hint">min:sec</span>' : '')+'</div>' +
       '<div class="stepper-field">' +
-        '<button type="button" class="stepper-btn minus" data-target="'+id+'" data-step="'+(-step)+'" data-min="'+min+'">−</button>' +
-        '<input type="number" min="'+min+'" id="'+id+'" value="'+(value==null?"":value)+'">' +
-        '<button type="button" class="stepper-btn plus" data-target="'+id+'" data-step="'+step+'" data-min="'+min+'">+</button>' +
+        '<button type="button" class="stepper-btn minus" data-target="'+id+'" data-step="'+(-step)+'" data-min="'+min+'"'+(isTime?' data-time="1"':'')+'>−</button>' +
+        '<input type="'+(isTime?"text":"number")+'" min="'+min+'" id="'+id+'" value="'+escapeHtml(String(displayValue))+'"'+timeAttrs+'>' +
+        '<button type="button" class="stepper-btn plus" data-target="'+id+'" data-step="'+step+'" data-min="'+min+'"'+(isTime?' data-time="1"':'')+'>+</button>' +
       '</div>' +
     '</div>';
   }
@@ -4048,13 +4157,16 @@
       h_rounds:["hiit","rounds"], h_restbetween:["hiit","restBetween"],
       c_rounds:["circuit","rounds"], c_transition:["circuit","transitionSec"], c_restbetween:["circuit","restBetween"],
       e_interval:["emom","intervalSec"], e_rounds:["emom","rounds"],
-      a_cap:["amrap","capMin"]
+      a_cap:["amrap","capMin"],
+      l_start:["ladder","startReps"], l_end:["ladder","endReps"], l_step:["ladder","step"],
+      l_restbetween:["ladder","restBetween"]
     };
+    var timeIds = { t_work:1, t_rest:1, h_restbetween:1, c_transition:1, c_restbetween:1, e_interval:1, l_restbetween:1 };
     Object.keys(map).forEach(function(id){
       var el = document.getElementById(id);
       if(!el) return;
       el.addEventListener("input", function(){
-        var v = parseInt(el.value, 10);
+        var v = timeIds[id] ? parseTimeInput(el.value) : parseInt(el.value, 10);
         typeSettingsState[map[id][0]][map[id][1]] = isNaN(v) ? 0 : v;
         validateBuilder();
       });
@@ -4069,13 +4181,14 @@
     if(!btn) return;
     var input = document.getElementById(btn.dataset.target);
     if(!input) return;
+    var isTime = btn.dataset.time === "1";
     var step = parseFloat(btn.dataset.step);
     var min = parseFloat(btn.dataset.min);
-    var current = parseFloat(input.value);
+    var current = isTime ? parseTimeInput(input.value) : parseFloat(input.value);
     if(isNaN(current)) current = 0;
     var next = current + step;
     if(!isNaN(min) && next < min) next = min;
-    input.value = next;
+    input.value = isTime ? secToMMSS(next) : next;
     input.dispatchEvent(new Event("input", { bubbles: true }));
   });
 
@@ -4088,19 +4201,19 @@
       if(currentType === "hiit"){
         perExerciseFields =
           '<div class="row2">' +
-            field("Work (sec)", "ex_work_"+idx, ex.workSec, 5) +
-            field("Rest (sec)", "ex_rest_"+idx, ex.restSec, 5) +
+            field("Work", "ex_work_"+idx, ex.workSec, 5, 0, true) +
+            field("Rest", "ex_rest_"+idx, ex.restSec, 5, 0, true) +
           '</div>';
       } else if(currentType === "circuit"){
         perExerciseFields =
           '<div class="row2">' +
-            field("Work (sec)", "ex_work_"+idx, ex.workSec, 5) +
+            field("Work", "ex_work_"+idx, ex.workSec, 5, 0, true) +
             field("Rep Target", "ex_reps_"+idx, ex.repTarget, 1) +
           '</div>';
       } else if(currentType === "timed" || currentType === "warmup" || currentType === "hyrox"){
         perExerciseFields =
           '<div class="row2">' +
-            field("Duration (sec)", "ex_work_"+idx, ex.workSec, 5) +
+            field("Duration", "ex_work_"+idx, ex.workSec, 5, 0, true) +
             field("Rep Target", "ex_reps_"+idx, ex.repTarget, 1) +
           '</div>';
       } else if(currentType === "amrap"){
@@ -4114,13 +4227,14 @@
           '</div>' +
           '<div class="row2">' +
             field("Sets", "ex_sets_"+idx, ex.sets, 1) +
-            field("Rest (sec)", "ex_rest_"+idx, ex.restSec, 5) +
+            field("Rest", "ex_rest_"+idx, ex.restSec, 5, 0, true) +
           '</div>';
       }
       // tabata/emom: no per-exercise time fields, uses global settings
       item.innerHTML =
         '<div class="exhead">' +
           '<span class="ex-grip" data-idx="'+idx+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="15" cy="18" r="1.3"/></svg></span>' +
+          '<span class="preview-ex-num" style="flex-shrink:0;">'+(idx+1)+'</span>' +
           '<input type="text" placeholder="Exercise name" maxlength="40" id="ex_name_'+idx+'" value="'+escapeHtml(ex.name)+'">' +
           '<button class="remove" data-idx="'+idx+'">✕</button>' +
         '</div>' +
@@ -4144,13 +4258,13 @@
       var workEl = document.getElementById("ex_work_"+idx);
       if(workEl){
         workEl.addEventListener("input", function(){
-          var v = parseInt(workEl.value,10); ex.workSec = isNaN(v)? null : v; validateBuilder();
+          var v = parseTimeInput(workEl.value); ex.workSec = isNaN(v)? null : v; validateBuilder();
         });
       }
       var restEl = document.getElementById("ex_rest_"+idx);
       if(restEl){
         restEl.addEventListener("input", function(){
-          var v = parseInt(restEl.value,10); ex.restSec = isNaN(v)? null : v; validateBuilder();
+          var v = parseTimeInput(restEl.value); ex.restSec = isNaN(v)? null : v; validateBuilder();
         });
       }
       var repsEl = document.getElementById("ex_reps_"+idx);
@@ -4258,6 +4372,10 @@
     if(currentType === "circuit" && (!typeSettingsState.circuit.rounds || !typeSettingsState.circuit.transitionSec)) ok = false;
     if(currentType === "emom" && (!typeSettingsState.emom.intervalSec || !typeSettingsState.emom.rounds)) ok = false;
     if(currentType === "amrap" && !typeSettingsState.amrap.capMin) ok = false;
+    if(currentType === "ladder"){
+      var sl = typeSettingsState.ladder;
+      if(!sl.startReps || !sl.endReps || !sl.step || !sl.restBetween) ok = false;
+    }
     if(builderMode === "section"){
       document.getElementById("saveSectionBtn").disabled = !ok;
     } else {
@@ -4433,6 +4551,35 @@
           }
         }
       });
+    } else if(w.type === "ladder"){
+      var sLad = w.settings;
+      var step = Math.max(1, sLad.step || 1);
+      var rungs = [];
+      if(sLad.startReps <= sLad.endReps){
+        for(var rr = sLad.startReps; rr <= sLad.endReps; rr += step) rungs.push(rr);
+      } else {
+        for(var rr2 = sLad.startReps; rr2 >= sLad.endReps; rr2 -= step) rungs.push(rr2);
+      }
+      rungs.forEach(function(reps, rungIdx){
+        out.push({
+          label: "Round " + (rungIdx+1),
+          sub: "Round " + (rungIdx+1) + "/" + rungs.length,
+          duration: 0,
+          kind: "work",
+          isManualSet: true,
+          isLadderRound: true,
+          rungExerciseList: w.exercises.map(function(ex){ return { name: ex.name, reps: reps }; })
+        });
+        var isLastRung = (rungIdx === rungs.length - 1);
+        if(!isLastRung){
+          out.push({
+            label: "Rest",
+            sub: "Round " + (rungIdx+2) + " next — " + rungs[rungIdx+1] + " reps",
+            duration: sLad.restBetween,
+            kind: "rest"
+          });
+        }
+      });
     }
     return out;
   }
@@ -4462,6 +4609,7 @@
   var amrapCountEl = document.getElementById("amrapCount");
   var amrapRoundCount = 0;
   var manualSetRow = document.getElementById("manualSetRow");
+  var completeSetBtn = document.getElementById("completeSetBtn");
   var manualSetEnteredAt = null; // timestamp when the current manual (weightlifting) set was entered
   var manualTimeAccrued = 0; // total real seconds spent across completed manual sets
   var RING_CIRC = 326.7;
@@ -4551,11 +4699,13 @@
     var nextIv = intervals[currentIndex+1];
     var previewIv = (iv.kind === "prepare") ? nextIv : iv;
     var isAmrapContext = !!(iv.isAmrap || (previewIv && previewIv.isAmrap));
-    document.getElementById("playerCenter").classList.toggle("amrap-active", isAmrapContext);
+    var isLadderRoundContext = !!(iv.isLadderRound || (previewIv && previewIv.isLadderRound));
+    document.getElementById("playerCenter").classList.toggle("amrap-active", isAmrapContext || isLadderRoundContext);
 
     var label;
     if(iv.kind === "prepare") label = "GET READY";
     else if(iv.isAmrap) label = "AMRAP";
+    else if(iv.isLadderRound) label = "ROUND";
     else if(iv.isManualSet) label = "SET";
     else if(iv.kind === "work") label = "WORK";
     else label = "REST";
@@ -4564,15 +4714,20 @@
 
     document.getElementById("playerCenter").classList.toggle("manual-set-active", !!iv.isManualSet);
     manualSetRow.classList.toggle("hidden", !iv.isManualSet);
+    completeSetBtn.textContent = iv.isLadderRound ? "Complete Round" : "Complete Set";
 
     if(previewIv && previewIv.isAmrap){
       exerciseNameEl.innerHTML = previewIv.exerciseList.map(escapeHtml).join("<br>");
+    } else if(previewIv && previewIv.isLadderRound){
+      exerciseNameEl.innerHTML = previewIv.rungExerciseList.map(function(e){
+        return escapeHtml(e.name) + ' <b>&middot; ' + e.reps + (e.reps === 1 ? " rep" : " reps") + '</b>';
+      }).join("<br>");
     } else {
       exerciseNameEl.textContent = previewIv ? previewIv.label : "";
     }
     roundInfoEl.textContent = iv.sub || "";
 
-    if(previewIv && !previewIv.isAmrap && (previewIv.repTarget || previewIv.weight)){
+    if(previewIv && !previewIv.isAmrap && !previewIv.isLadderRound && (previewIv.repTarget || previewIv.weight)){
       var targetParts = [];
       if(previewIv.weight) targetParts.push(String(previewIv.weight));
       if(previewIv.repTarget) targetParts.push(previewIv.repTarget + (previewIv.repTarget === 1 ? " rep" : " reps"));
@@ -4586,6 +4741,8 @@
 
     if(iv.isAmrap){
       nextUpEl.textContent = "Complete as many rounds as possible";
+    } else if(iv.isLadderRound){
+      nextUpEl.textContent = "Finish every exercise above, then tap Complete Round";
     } else {
       var nxt = intervals[currentIndex+1];
       if(nxt && nxt.kind !== "prepare"){
