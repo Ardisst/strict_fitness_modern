@@ -27,6 +27,7 @@
     --weightlifting: #94a3b8;
     --multi: #7dd3fc;
     --ladder: #60a5fa;
+    --calisthenics: #38bdf8;
     --silver: #94a3b8;
     --radius: 18px;
     --grad: linear-gradient(135deg, #2f6fe0 0%, #4dd2ff 55%, #94a3b8 100%);
@@ -58,6 +59,7 @@
     --weightlifting: #64748b;
     --multi: #0369a1;
     --ladder: #1d4ed8;
+    --calisthenics: #0369a1;
     --silver: #64748b;
     --grad: linear-gradient(135deg, #1d4ed8 0%, #0d84a3 55%, #64748b 100%);
     --grad-dark: linear-gradient(135deg, #1e3a8a 0%, #0c4a5c 55%, #334155 100%);
@@ -239,6 +241,7 @@
   #filterBar .filter-chip.tag-weightlifting.active{ background:linear-gradient(135deg,#475569,var(--weightlifting)); }
   #filterBar .filter-chip.tag-multi.active{ background:linear-gradient(135deg,#1e3a8a,var(--multi)); }
   #filterBar .filter-chip.tag-ladder.active{ background:linear-gradient(135deg,#1e3a8a,var(--ladder)); }
+  #filterBar .filter-chip.tag-calisthenics.active{ background:linear-gradient(135deg,#334155,var(--calisthenics)); }
 
   .topbar-actions-wrap{ position:relative; flex-shrink:0; }
   .iconbtn-settings{ background:var(--surface); border-color:var(--line); color:var(--text-dim); }
@@ -343,6 +346,7 @@
   .tag-weightlifting{ background:rgba(148,163,184,0.16); color:var(--weightlifting); }
   .tag-multi{ background:rgba(125,211,252,0.16); color:var(--multi); }
   .tag-ladder{ background:rgba(96,165,250,0.16); color:var(--ladder); }
+  .tag-calisthenics{ background:rgba(56,189,248,0.16); color:var(--calisthenics); }
   .tag-all{ background:rgba(255,255,255,0.10); color:var(--text); }
 
   .tag-bodypart{ background:var(--text-dim); color:var(--surface); }
@@ -401,6 +405,7 @@
     border-radius:12px; padding:13px 14px; font-size:16px; font-family:inherit;
   }
   input[type=number]{ font-weight:800; font-size:17px; text-align:center; }
+  input[data-time="1"]{ font-weight:800; font-size:17px; text-align:center; }
   input:focus{ outline:none; border-color:var(--work); box-shadow:0 0 0 3px rgba(77,166,255,0.18); }
 
   .type-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
@@ -429,6 +434,7 @@
   .subfield-hint{ opacity:0.65; text-transform:none; font-weight:600; letter-spacing:normal; }
   .stepper-field{ display:flex; align-items:center; gap:8px; }
   .stepper-field input[type=number]{ flex:1; min-width:0; padding:13px 6px; }
+  .stepper-field input[data-time="1"]{ flex:1; min-width:0; padding:13px 6px; }
   .stepper-btn{
     width:34px; height:34px; border-radius:10px; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
@@ -505,7 +511,7 @@
   .player-top .quit{ color:var(--text-dim); background:none; border:none; font-size:15px; font-weight:600; display:flex; align-items:center; }
   .player-top .quit svg{ width:20px; height:20px; display:block; }
   .player-top .quit.finish{ color:var(--work); font-weight:800; }
-  .player-top .roundinfo{ color:var(--text-dim); font-size:14px; font-weight:700; letter-spacing:0.02em; }
+  .player-top .roundinfo{ color:var(--text); font-size:17px; font-weight:900; letter-spacing:0.02em; }
 
   .player-center{
     flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -686,6 +692,7 @@
   .badge-grad-weightlifting{ background:linear-gradient(135deg,#64748b,#cbd5e1); }
   .badge-grad-multi{ background:linear-gradient(135deg,#1e3a8a,#38bdf8,#cbd5e1); }
   .badge-grad-ladder{ background:linear-gradient(135deg,#1e3a8a,#94a3b8); }
+  .badge-grad-calisthenics{ background:linear-gradient(135deg,#334155,#38bdf8); }
 
   /* ===================== V2: SETTINGS SCREEN ===================== */
   .settings-logo-wrap{ display:flex; justify-content:center; padding:10px 0 24px 0; }
@@ -825,6 +832,7 @@
       <button class="filter-chip tag-weightlifting" data-filter="weightlifting">Weightlifting</button>
       <button class="filter-chip tag-multi" data-filter="multi">Multi</button>
       <button class="filter-chip tag-ladder" data-filter="ladder">Ladder</button>
+      <button class="filter-chip tag-calisthenics" data-filter="calisthenics">Calisthenics</button>
     </div>
     <div id="homeList" style="position:relative; flex:1; overflow-y:auto;">
       <div id="emptyState" class="empty-state hidden">
@@ -919,6 +927,7 @@
       <button class="filter-chip tag-bodypart" data-part="back">Back</button>
       <button class="filter-chip tag-bodypart" data-part="chest">Chest</button>
       <button class="filter-chip tag-bodypart" data-part="core">Core</button>
+      <button class="filter-chip tag-bodypart" data-part="shoulders">Shoulders</button>
     </div>
     <div id="randomBody" style="flex:1; overflow-y:auto; padding:6px 18px 24px 18px;"></div>
     <div class="save-bar">
@@ -965,6 +974,7 @@
       <button class="filter-chip tag-bodypart" data-part="back">Back</button>
       <button class="filter-chip tag-bodypart" data-part="chest">Chest</button>
       <button class="filter-chip tag-bodypart" data-part="core">Core</button>
+      <button class="filter-chip tag-bodypart" data-part="shoulders">Shoulders</button>
     </div>
     <div id="historyBody" style="flex:1; overflow-y:auto; padding:6px 18px 24px 18px;"></div>
   </div>
@@ -1248,6 +1258,10 @@
           <div class="t">Ladder</div>
           <div class="d">Work down (or up) through a rep ladder — e.g. 10-8-6-4-2. Do every exercise at each rung, then tap Complete Round.</div>
         </button>
+        <button class="type-opt" data-type="calisthenics">
+          <div class="t">Calisthenics &amp; Mobility</div>
+          <div class="d">A straight-through list of bodyweight moves and stretches, each held or performed for its own duration — no repeats.</div>
+        </button>
       </div>
       <div class="chip-row" id="typeChipRow">
         <button class="chip" data-type="tabata">Tabata</button>
@@ -1261,6 +1275,7 @@
         <button class="chip" data-type="weightlifting">Weightlifting</button>
         <button class="chip" data-type="multi">Multi</button>
         <button class="chip" data-type="ladder">Ladder</button>
+        <button class="chip" data-type="calisthenics">Calisthenics &amp; Mobility</button>
       </div>
 
       <div id="typeSettings"></div>
@@ -1278,6 +1293,7 @@
         <button class="bodypart-chip" data-part="back">Back</button>
         <button class="bodypart-chip" data-part="chest">Chest</button>
         <button class="bodypart-chip" data-part="core">Core</button>
+        <button class="bodypart-chip" data-part="shoulders">Shoulders</button>
       </div>
 
       <div class="field-label" id="exercisesLabel" style="display:none;">Exercises</div>
@@ -2261,7 +2277,7 @@
   // One row per exercise. Workout-level settings are repeated on every row that
   // belongs to that workout (standard flattening for hierarchical -> spreadsheet data).
   var CSV_HEADERS = ["Workout ID","Workout Name","Type","Body Parts","Rounds","Work Sec","Rest Sec",
-    "Rest Between Sec","Transition Sec","Interval Sec","Time Cap Min","Start Reps","End Reps","Step",
+    "Rest Between Sec","Transition Sec","Interval Sec","Time Cap Min","Start Reps","End Reps","Step","EMOM Mode",
     "Exercise Order","Exercise Name","Exercise Work Sec","Exercise Rest Sec","Exercise Rep Target","Exercise Sets","Exercise Weight",
     "Section Order","Section Type","Section Label"];
 
@@ -2285,7 +2301,7 @@
               w.id, w.name, w.type, bp,
               blank(s.rounds), blank(s.workSec), blank(s.restSec),
               blank(s.restBetween), blank(s.transitionSec), blank(s.intervalSec), blank(s.capMin),
-              blank(s.startReps), blank(s.endReps), blank(s.step),
+              blank(s.startReps), blank(s.endReps), blank(s.step), blank(s.mode),
               idx+1, ex.name, blank(ex.workSec), blank(ex.restSec), blank(ex.repTarget), blank(ex.sets), blank(ex.weight),
               sIdx+1, section.type, section.label || ""
             ]));
@@ -2298,7 +2314,7 @@
             w.id, w.name, w.type, bp,
             blank(s.rounds), blank(s.workSec), blank(s.restSec),
             blank(s.restBetween), blank(s.transitionSec), blank(s.intervalSec), blank(s.capMin),
-            blank(s.startReps), blank(s.endReps), blank(s.step),
+            blank(s.startReps), blank(s.endReps), blank(s.step), blank(s.mode),
             idx+1, ex.name, blank(ex.workSec), blank(ex.restSec), blank(ex.repTarget), blank(ex.sets), blank(ex.weight),
             "", "", ""
           ]));
@@ -2329,7 +2345,7 @@
     return rows;
   }
 
-  var VALID_TYPES = { tabata:1, hiit:1, circuit:1, timed:1, emom:1, amrap:1, warmup:1, hyrox:1, weightlifting:1, multi:1, ladder:1 };
+  var VALID_TYPES = { tabata:1, hiit:1, circuit:1, timed:1, emom:1, amrap:1, warmup:1, hyrox:1, weightlifting:1, multi:1, ladder:1, calisthenics:1 };
   var SETTING_COL_MAP = {
     "Rounds":"rounds", "Work Sec":"workSec", "Rest Sec":"restSec",
     "Rest Between Sec":"restBetween", "Transition Sec":"transitionSec",
@@ -2378,6 +2394,10 @@
           var v = num(r, col);
           if(v !== undefined) section.settings[SETTING_COL_MAP[col]] = v;
         });
+        if(sectionType === "emom"){
+          var secMode = get(r, "EMOM Mode").trim().toLowerCase();
+          if(secMode === "multi" || secMode === "single") section.settings.mode = secMode;
+        }
         section.exercises.push({
           id: uid(), name: exName,
           workSec: num(r, "Exercise Work Sec"),
@@ -2394,6 +2414,10 @@
         var v = num(r, col);
         if(v !== undefined) w.settings[SETTING_COL_MAP[col]] = v;
       });
+      if(type === "emom"){
+        var emomModeVal = get(r, "EMOM Mode").trim().toLowerCase();
+        if(emomModeVal === "multi" || emomModeVal === "single") w.settings.mode = emomModeVal;
+      }
       w.exercises.push({
         id: uid(), name: exName,
         workSec: num(r, "Exercise Work Sec"),
@@ -2614,9 +2638,9 @@
   }
   var searchQuery = "";
 
-  var TYPE_LABELS = { tabata:"Tabata", hiit:"HIIT", circuit:"Circuit", timed:"Timed", emom:"EMOM", amrap:"AMRAP", warmup:"Warmup", hyrox:"Hyrox", weightlifting:"Weightlifting", multi:"Multi", ladder:"Ladder" };
-  var TYPE_TAGCLASS = { tabata:"tag-tabata", hiit:"tag-hiit", circuit:"tag-circuit", timed:"tag-timed", emom:"tag-emom", amrap:"tag-amrap", warmup:"tag-warmup", hyrox:"tag-hyrox", weightlifting:"tag-weightlifting", multi:"tag-multi", ladder:"tag-ladder" };
-  var TYPE_BADGE_CLASS = { tabata:"badge-grad-tabata", hiit:"badge-grad-hiit", circuit:"badge-grad-circuit", timed:"badge-grad-timed", emom:"badge-grad-emom", amrap:"badge-grad-amrap", warmup:"badge-grad-warmup", hyrox:"badge-grad-hyrox", weightlifting:"badge-grad-weightlifting", multi:"badge-grad-multi", ladder:"badge-grad-ladder" };
+  var TYPE_LABELS = { tabata:"Tabata", hiit:"HIIT", circuit:"Circuit", timed:"Timed", emom:"EMOM", amrap:"AMRAP", warmup:"Warmup", hyrox:"Hyrox", weightlifting:"Weightlifting", multi:"Multi", ladder:"Ladder", calisthenics:"Calisthenics & Mobility" };
+  var TYPE_TAGCLASS = { tabata:"tag-tabata", hiit:"tag-hiit", circuit:"tag-circuit", timed:"tag-timed", emom:"tag-emom", amrap:"tag-amrap", warmup:"tag-warmup", hyrox:"tag-hyrox", weightlifting:"tag-weightlifting", multi:"tag-multi", ladder:"tag-ladder", calisthenics:"tag-calisthenics" };
+  var TYPE_BADGE_CLASS = { tabata:"badge-grad-tabata", hiit:"badge-grad-hiit", circuit:"badge-grad-circuit", timed:"badge-grad-timed", emom:"badge-grad-emom", amrap:"badge-grad-amrap", warmup:"badge-grad-warmup", hyrox:"badge-grad-hyrox", weightlifting:"badge-grad-weightlifting", multi:"badge-grad-multi", ladder:"badge-grad-ladder", calisthenics:"badge-grad-calisthenics" };
   var TYPE_ICON_SVG = {
     tabata: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>',
     hiit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>',
@@ -2628,10 +2652,11 @@
     hyrox: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 100-2 1 1 0 000 2zm-3 11.5L9 12l4-2 1.5 3.5 3 1"/></svg>',
     weightlifting: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M4 9v6M20 9v6M8 6.5v11M16 6.5v11"/></svg>',
     multi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg>',
-    ladder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v18M18 3v18M6 7h12M6 12h12M6 17h12"/></svg>'
+    ladder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v18M18 3v18M6 7h12M6 12h12M6 17h12"/></svg>',
+    calisthenics: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="1.8"/><path d="M12 6.5v6M12 8l-6 3M12 8l6 3M12 12.5l-3.5 8M12 12.5l3.5 8"/></svg>'
   };
-  var BODY_PARTS = ["arms","legs","back","chest","core"];
-  var BODY_PART_LABELS = { arms:"Arms", legs:"Legs", back:"Back", chest:"Chest", core:"Core" };
+  var BODY_PARTS = ["arms","legs","back","chest","core","shoulders"];
+  var BODY_PART_LABELS = { arms:"Arms", legs:"Legs", back:"Back", chest:"Chest", core:"Core", shoulders:"Shoulders" };
   function bodyPartTagsHTML(parts){
     if(!parts || !parts.length) return "";
     return parts.map(function(p){
@@ -3101,40 +3126,41 @@
   function typeSettingsSummary(w){
     var s = w.settings || {};
     if(w.type === "tabata"){
-      var t = s.rounds + " round" + (s.rounds===1?"":"s") + " · " + s.workSec + "s work / " + s.restSec + "s rest";
-      if(s.restBetween) t += " · " + s.restBetween + "s between exercises";
+      var t = s.rounds + " round" + (s.rounds===1?"":"s") + " · " + secToMMSS(s.workSec) + " work / " + secToMMSS(s.restSec) + " rest";
+      if(s.restBetween) t += " · " + secToMMSS(s.restBetween) + " between exercises";
       return t;
     }
     if(w.type === "hiit"){
       var h = s.rounds + " round" + (s.rounds===1?"":"s") + " through the list";
-      if(s.restBetween) h += " · " + s.restBetween + "s rest between rounds";
+      if(s.restBetween) h += " · " + secToMMSS(s.restBetween) + " rest between rounds";
       return h;
     }
     if(w.type === "circuit"){
-      var c = s.rounds + " round" + (s.rounds===1?"":"s") + " · " + s.transitionSec + "s transition";
-      if(s.restBetween) c += " · " + s.restBetween + "s rest between rounds";
+      var c = s.rounds + " round" + (s.rounds===1?"":"s") + " · " + secToMMSS(s.transitionSec) + " transition";
+      if(s.restBetween) c += " · " + secToMMSS(s.restBetween) + " rest between rounds";
       return c;
     }
-    if(w.type === "emom") return "Every " + s.intervalSec + "s, for " + s.rounds + " minute" + (s.rounds===1?"":"s");
+    if(w.type === "emom") return "Every " + secToMMSS(s.intervalSec) + ", for " + s.rounds + " minute" + (s.rounds===1?"":"s") + (s.mode === "multi" ? " · all exercises together each minute" : " · one exercise per minute");
     if(w.type === "amrap") return s.capMin + " minute time cap";
-    if(w.type === "timed" || w.type === "warmup") return "Straight through, no repeats";
+    if(w.type === "timed" || w.type === "warmup" || w.type === "calisthenics") return "Straight through, no repeats";
     if(w.type === "hyrox") return "Official race order — 8× 1km runs + 8 stations, straight through";
     if(w.type === "weightlifting") return "Untimed sets — tap Complete Set to start each rest";
     if(w.type === "ladder"){
-      return "Ladder " + s.startReps + "-" + s.endReps + " (step " + s.step + ") · " + s.restBetween + "s between rounds";
+      return "Ladder " + s.startReps + "-" + s.endReps + " (step " + s.step + ") · " + secToMMSS(s.restBetween) + " between rounds";
     }
     return "";
   }
 
   function exercisePreviewDetail(w, ex){
-    if(w.type === "hiit") return ex.workSec + "s work / " + ex.restSec + "s rest";
-    if(w.type === "circuit" || w.type === "timed" || w.type === "warmup" || w.type === "hyrox"){
-      var d = ex.workSec + "s";
+    if(w.type === "hiit") return secToMMSS(ex.workSec) + " work / " + secToMMSS(ex.restSec) + " rest";
+    if(w.type === "circuit" || w.type === "timed" || w.type === "warmup" || w.type === "hyrox" || w.type === "calisthenics"){
+      var d = secToMMSS(ex.workSec);
       if(ex.repTarget) d += " · " + ex.repTarget + " reps";
       return d;
     }
     if(w.type === "amrap" && ex.repTarget) return ex.repTarget + " reps";
-    if(w.type === "weightlifting") return (ex.weight ? ex.weight + " · " : "") + (ex.sets||"") + " sets · " + (ex.repTarget||"") + " reps · " + (ex.restSec||"") + "s rest";
+    if(w.type === "emom" && ex.repTarget) return ex.repTarget + " reps";
+    if(w.type === "weightlifting") return (ex.weight ? ex.weight + " · " : "") + (ex.sets||"") + " sets · " + (ex.repTarget||"") + " reps · " + secToMMSS(ex.restSec) + " rest";
     return "";
   }
 
@@ -3415,7 +3441,7 @@
       '{ "name": string, "type": string, "bodyParts": string[], "settings": object, "exercises": object[] }',
       "",
       "\"type\" must be exactly one of: tabata, hiit, circuit, timed, emom, amrap, warmup, weightlifting.",
-      "\"bodyParts\" entries must only be from: arms, legs, back, chest, core (include the ones this workout targets, can be more than one, or empty array if not applicable).",
+      "\"bodyParts\" entries must only be from: arms, legs, back, chest, core, shoulders (include the ones this workout targets, can be more than one, or empty array if not applicable).",
       "",
       "\"settings\" and \"exercises\" shape depends on type:",
       "- tabata: settings { workSec, restSec, rounds, restBetween } (numbers, seconds/count). exercises: [{ name }] — each exercise cycles through all rounds before moving to the next.",
@@ -3764,7 +3790,7 @@
     hiit: { rounds:3, restBetween:60 },
     circuit: { rounds:3, restBetween:60, transitionSec:10 },
     timed: {},
-    emom: { intervalSec:60, rounds:10 },
+    emom: { intervalSec:60, rounds:10, mode:"single" },
     amrap: { capMin:10 },
     warmup: {},
     hyrox: {},
@@ -4082,7 +4108,14 @@
           field("Interval", "e_interval", s.intervalSec, 5, 0, true) +
           field("Rounds (minutes)", "e_rounds", s.rounds, 1) +
         '</div>' +
-        '<div class="helper-text">A new interval starts every "Interval" seconds (60 = a true EMOM). Your exercise list cycles in order, wrapping if it\'s shorter than the round count — whatever time is left after your reps is your rest.</div>';
+        '<div class="field-label" style="margin-top:16px;">Exercises Per Minute</div>' +
+        '<div class="chip-row" id="emomModeRow" style="margin-bottom:6px;">' +
+          '<button class="chip' + (s.mode !== "multi" ? " active" : "") + '" data-mode="single">One at a Time</button>' +
+          '<button class="chip' + (s.mode === "multi" ? " active" : "") + '" data-mode="multi">All Together</button>' +
+        '</div>' +
+        '<div class="helper-text">' + (s.mode === "multi"
+          ? 'Every exercise below is done together within each minute (e.g. 5 pushups, 5 squats, 5 pull-ups — all in the same minute). Optional rep targets show alongside each one.'
+          : 'A new interval starts every "Interval" seconds (60 = a true EMOM). Your exercise list cycles one at a time, wrapping if it\'s shorter than the round count — whatever time is left after your reps is your rest. Rep target is optional.') + '</div>';
     } else if(currentType === "amrap"){
       html =
         '<div class="field-label">AMRAP Settings</div>' +
@@ -4092,6 +4125,8 @@
         '<div class="helper-text">List the exercises that make up one round below. During the workout, tap "+1 Round" every time you complete the full list — the clock just counts down the cap.</div>';
     } else if(currentType === "warmup"){
       html = '<div class="helper-text">Add steps in order. Each runs once, straight through — no rounds. Just like Timed, but kept in its own category so it\'s easy to filter.</div>';
+    } else if(currentType === "calisthenics"){
+      html = '<div class="helper-text">Add moves and stretches in order. Each runs once, straight through — no rounds. Good for bodyweight flows and mobility/stretch routines where every step gets its own hold time.</div>';
     } else if(currentType === "hyrox"){
       html = '<div class="helper-text">The official HYROX race format: 8× 1km runs alternating with 8 fixed stations, always in this exact order — SkiErg, Sled Push, Sled Pull, Burpee Broad Jumps, Row, Farmers Carry, Sandbag Lunges, Wall Balls. Picking this type auto-fills the full sequence with standard distances/weights below — edit the target times to match your own goal pace, or adjust weights for your division.</div>';
     } else if(currentType === "weightlifting"){
@@ -4111,6 +4146,16 @@
     }
     typeSettingsEl.innerHTML = html;
     bindTypeSettingInputs();
+    var emomModeRow = document.getElementById("emomModeRow");
+    if(emomModeRow){
+      emomModeRow.addEventListener("click", function(e){
+        var btn = e.target.closest(".chip");
+        if(!btn) return;
+        typeSettingsState.emom.mode = btn.dataset.mode;
+        renderTypeSettings();
+        renderExerciseList();
+      });
+    }
     exercisesLabelEl.textContent = (currentType === "amrap") ? "Round Exercises" : "Exercises";
   }
 
@@ -4135,6 +4180,21 @@
     }
     var n = parseFloat(str);
     return isNaN(n) ? NaN : Math.round(n);
+  }
+  // Auto-inserts the M:SS colon as the user types raw digits, so typing
+  // "130" becomes 1:30 (1 min 30 sec) without ever needing to type ":"
+  // yourself. The rightmost two digits are always seconds; everything typed
+  // before that is minutes, and minutes are never capped (typing past 60
+  // minutes just keeps counting, e.g. 61, 62...). If the seconds portion
+  // typed is 60 or higher it rolls over into minutes automatically too, e.g.
+  // typing "175" (1 min prefix, "75" raw seconds) becomes 2:15.
+  function digitsToSeconds(raw){
+    var digits = String(raw || "").replace(/[^0-9]/g, "");
+    if(digits === "") return NaN;
+    digits = digits.replace(/^0+(?=\d)/, "");
+    var secsPart = digits.slice(-2);
+    var minsPart = digits.slice(0, -2) || "0";
+    return parseInt(minsPart, 10) * 60 + parseInt(secsPart, 10);
   }
 
   function field(label, id, value, step, min, isTime){
@@ -4166,7 +4226,13 @@
       var el = document.getElementById(id);
       if(!el) return;
       el.addEventListener("input", function(){
-        var v = timeIds[id] ? parseTimeInput(el.value) : parseInt(el.value, 10);
+        var v;
+        if(timeIds[id]){
+          v = digitsToSeconds(el.value);
+          el.value = isNaN(v) ? "" : secToMMSS(v);
+        } else {
+          v = parseInt(el.value, 10);
+        }
         typeSettingsState[map[id][0]][map[id][1]] = isNaN(v) ? 0 : v;
         validateBuilder();
       });
@@ -4210,7 +4276,7 @@
             field("Work", "ex_work_"+idx, ex.workSec, 5, 0, true) +
             field("Rep Target", "ex_reps_"+idx, ex.repTarget, 1) +
           '</div>';
-      } else if(currentType === "timed" || currentType === "warmup" || currentType === "hyrox"){
+      } else if(currentType === "timed" || currentType === "warmup" || currentType === "hyrox" || currentType === "calisthenics"){
         perExerciseFields =
           '<div class="row2">' +
             field("Duration", "ex_work_"+idx, ex.workSec, 5, 0, true) +
@@ -4219,6 +4285,9 @@
       } else if(currentType === "amrap"){
         perExerciseFields =
           '<div>' + field("Rep Target", "ex_reps_"+idx, ex.repTarget, 1) + '</div>';
+      } else if(currentType === "emom"){
+        perExerciseFields =
+          '<div>' + field("Rep Target (optional)", "ex_reps_"+idx, ex.repTarget, 1) + '</div>';
       } else if(currentType === "weightlifting"){
         perExerciseFields =
           '<div class="row2">' +
@@ -4230,7 +4299,7 @@
             field("Rest", "ex_rest_"+idx, ex.restSec, 5, 0, true) +
           '</div>';
       }
-      // tabata/emom: no per-exercise time fields, uses global settings
+      // tabata: no per-exercise fields at all, uses global settings only
       item.innerHTML =
         '<div class="exhead">' +
           '<span class="ex-grip" data-idx="'+idx+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="15" cy="18" r="1.3"/></svg></span>' +
@@ -4258,13 +4327,17 @@
       var workEl = document.getElementById("ex_work_"+idx);
       if(workEl){
         workEl.addEventListener("input", function(){
-          var v = parseTimeInput(workEl.value); ex.workSec = isNaN(v)? null : v; validateBuilder();
+          var v = digitsToSeconds(workEl.value);
+          workEl.value = isNaN(v) ? "" : secToMMSS(v);
+          ex.workSec = isNaN(v)? null : v; validateBuilder();
         });
       }
       var restEl = document.getElementById("ex_rest_"+idx);
       if(restEl){
         restEl.addEventListener("input", function(){
-          var v = parseTimeInput(restEl.value); ex.restSec = isNaN(v)? null : v; validateBuilder();
+          var v = digitsToSeconds(restEl.value);
+          restEl.value = isNaN(v) ? "" : secToMMSS(v);
+          ex.restSec = isNaN(v)? null : v; validateBuilder();
         });
       }
       var repsEl = document.getElementById("ex_reps_"+idx);
@@ -4361,7 +4434,7 @@
     exercises.forEach(function(ex){
       if(!ex.name.trim()) ok = false;
       if(currentType === "hiit" && (!ex.workSec || !ex.restSec)) ok = false;
-      if((currentType === "circuit" || currentType === "timed" || currentType === "warmup" || currentType === "hyrox") && !ex.workSec) ok = false;
+      if((currentType === "circuit" || currentType === "timed" || currentType === "warmup" || currentType === "hyrox" || currentType === "calisthenics") && !ex.workSec) ok = false;
       if(currentType === "weightlifting" && (!ex.repTarget || !ex.restSec || !ex.sets)) ok = false;
     });
     if(currentType === "tabata"){
@@ -4507,16 +4580,28 @@
           }
         });
       }
-    } else if(w.type === "timed" || w.type === "warmup" || w.type === "hyrox"){
+    } else if(w.type === "timed" || w.type === "warmup" || w.type === "hyrox" || w.type === "calisthenics"){
       w.exercises.forEach(function(ex, idx){
         var next = w.exercises[idx+1];
         out.push({ label: ex.name, sub: next ? "" : "", duration: ex.workSec, kind:"work", repTarget: ex.repTarget || null });
       });
     } else if(w.type === "emom"){
       var s4 = w.settings;
-      for(var m=1; m<=s4.rounds; m++){
-        var ex4 = w.exercises[(m-1) % w.exercises.length];
-        out.push({ label: ex4.name, sub: "Minute "+m+"/"+s4.rounds, duration: s4.intervalSec, kind:"work" });
+      if(s4.mode === "multi"){
+        var emomList = w.exercises.map(function(e){
+          return e.name + (e.repTarget ? " — " + e.repTarget + " reps" : "");
+        });
+        for(var m=1; m<=s4.rounds; m++){
+          out.push({
+            label: "EMOM", sub: "Minute "+m+"/"+s4.rounds, duration: s4.intervalSec, kind:"work",
+            isEmomMulti: true, exerciseList: emomList
+          });
+        }
+      } else {
+        for(var m2=1; m2<=s4.rounds; m2++){
+          var ex4 = w.exercises[(m2-1) % w.exercises.length];
+          out.push({ label: ex4.name, sub: "Minute "+m2+"/"+s4.rounds, duration: s4.intervalSec, kind:"work", repTarget: ex4.repTarget || null });
+        }
       }
     } else if(w.type === "amrap"){
       var s5 = w.settings;
@@ -4700,12 +4785,14 @@
     var previewIv = (iv.kind === "prepare") ? nextIv : iv;
     var isAmrapContext = !!(iv.isAmrap || (previewIv && previewIv.isAmrap));
     var isLadderRoundContext = !!(iv.isLadderRound || (previewIv && previewIv.isLadderRound));
-    document.getElementById("playerCenter").classList.toggle("amrap-active", isAmrapContext || isLadderRoundContext);
+    var isEmomMultiContext = !!(iv.isEmomMulti || (previewIv && previewIv.isEmomMulti));
+    document.getElementById("playerCenter").classList.toggle("amrap-active", isAmrapContext || isLadderRoundContext || isEmomMultiContext);
 
     var label;
     if(iv.kind === "prepare") label = "GET READY";
     else if(iv.isAmrap) label = "AMRAP";
     else if(iv.isLadderRound) label = "ROUND";
+    else if(iv.isEmomMulti) label = "EMOM";
     else if(iv.isManualSet) label = "SET";
     else if(iv.kind === "work") label = "WORK";
     else label = "REST";
@@ -4716,18 +4803,18 @@
     manualSetRow.classList.toggle("hidden", !iv.isManualSet);
     completeSetBtn.textContent = iv.isLadderRound ? "Complete Round" : "Complete Set";
 
-    if(previewIv && previewIv.isAmrap){
-      exerciseNameEl.innerHTML = previewIv.exerciseList.map(escapeHtml).join("<br>");
-    } else if(previewIv && previewIv.isLadderRound){
+    if(previewIv && previewIv.isLadderRound){
       exerciseNameEl.innerHTML = previewIv.rungExerciseList.map(function(e){
         return escapeHtml(e.name) + ' <b>&middot; ' + e.reps + (e.reps === 1 ? " rep" : " reps") + '</b>';
       }).join("<br>");
+    } else if(previewIv && previewIv.exerciseList){
+      exerciseNameEl.innerHTML = previewIv.exerciseList.map(escapeHtml).join("<br>");
     } else {
       exerciseNameEl.textContent = previewIv ? previewIv.label : "";
     }
     roundInfoEl.textContent = iv.sub || "";
 
-    if(previewIv && !previewIv.isAmrap && !previewIv.isLadderRound && (previewIv.repTarget || previewIv.weight)){
+    if(previewIv && !previewIv.isAmrap && !previewIv.isLadderRound && !previewIv.isEmomMulti && (previewIv.repTarget || previewIv.weight)){
       var targetParts = [];
       if(previewIv.weight) targetParts.push(String(previewIv.weight));
       if(previewIv.repTarget) targetParts.push(previewIv.repTarget + (previewIv.repTarget === 1 ? " rep" : " reps"));
@@ -4743,6 +4830,8 @@
       nextUpEl.textContent = "Complete as many rounds as possible";
     } else if(iv.isLadderRound){
       nextUpEl.textContent = "Finish every exercise above, then tap Complete Round";
+    } else if(iv.isEmomMulti){
+      nextUpEl.textContent = "All exercises, every minute";
     } else {
       var nxt = intervals[currentIndex+1];
       if(nxt && nxt.kind !== "prepare"){
