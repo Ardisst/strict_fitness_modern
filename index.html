@@ -517,20 +517,38 @@
     flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
     padding:12px 20px; overflow-y:auto; min-height:0;
   }
+  .player-info-row{
+    display:flex; gap:10px; width:100%; max-width:340px; margin-bottom:12px; justify-content:center; flex-shrink:0;
+  }
+  .player-info-row.centered{ max-width:200px; }
+  .player-info-block{
+    flex:1; min-width:0; background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:9px 10px; text-align:center; box-shadow:var(--shadow-card);
+  }
+  .player-info-label{
+    font-size:10.5px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--text-dim); margin-bottom:2px;
+  }
+  .player-info-value{ font-size:19px; font-weight:900; color:var(--work); font-variant-numeric:tabular-nums; }
+  .player-exercise-block{
+    width:100%; max-width:340px; background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:12px 16px; box-shadow:var(--shadow-card); margin-bottom:14px; flex-shrink:0;
+  }
   .phase-label{
     font-size:15px; font-weight:800; letter-spacing:0.14em; text-transform:uppercase;
-    margin-bottom:18px; flex-shrink:0;
+    margin-bottom:14px; flex-shrink:0;
   }
-  .ring-wrap{ position:relative; width:min(78vw, 300px); height:min(78vw,300px); flex-shrink:0; }
+  .ring-wrap{ position:relative; width:min(66vw, 258px); height:min(66vw,258px); flex-shrink:0; }
   .ring-wrap svg{ width:100%; height:100%; transform:rotate(-90deg); overflow:visible; }
   .ring-bg{ fill:none; stroke:var(--surface-2); stroke-width:10; }
   .ring-fg{ fill:none; stroke-width:10; stroke-linecap:round; transition:stroke 0.3s ease; }
   .ring-center{
     position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
   }
-  .time-big{ font-size:64px; font-weight:900; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; }
+  .time-big{ font-size:64px; font-weight:900; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .time-big.mmss{ font-size:50px; }
   .exercise-name{
-    font-size:24px; font-weight:800; text-align:center; margin-top:22px; line-height:1.25; padding:0 10px;
+    font-size:22px; font-weight:800; text-align:center; line-height:1.28; padding:0;
     flex-shrink:0;
   }
   .rep-target{
@@ -539,7 +557,7 @@
     padding:8px 18px; border-radius:20px; flex-shrink:0;
   }
   .next-up{
-    margin-top:16px; font-size:18px; font-weight:600; color:var(--text-dim); text-align:center;
+    margin-top:16px; font-size:21px; font-weight:700; color:var(--text-dim); text-align:center;
     flex-shrink:0;
   }
   .next-up b{ color:var(--text); font-weight:800; }
@@ -561,19 +579,56 @@
 
   /* Compact layout while an AMRAP round is active — the exercise list + round
      counter need more room than a single exercise name, so shrink everything else. */
+  .player-center.amrap-active .player-info-row{ margin-bottom:8px; }
+  .player-center.amrap-active .player-info-block{ padding:6px 8px; }
+  .player-center.amrap-active .player-info-label{ font-size:9.5px; }
+  .player-center.amrap-active .player-info-value{ font-size:16px; }
+  .player-center.amrap-active .player-exercise-block{ padding:10px 14px; margin-bottom:8px; }
   .player-center.amrap-active .ring-wrap{ width:150px; height:150px; }
   .player-center.amrap-active .time-big{ font-size:42px; }
   .player-center.amrap-active .phase-label{ margin-bottom:10px; }
   .player-center.amrap-active .exercise-name{
-    font-size:16px; margin-top:12px; line-height:1.5;
+    font-size:16px; line-height:1.5;
     max-height:110px; overflow-y:auto; padding:0 6px;
   }
-  .player-center.amrap-active .next-up{ font-size:13px; margin-top:8px; }
+  .player-center.amrap-active .next-up{ font-size:14px; margin-top:8px; }
   .player-center.amrap-active .amrap-round-row{ margin-top:14px; gap:10px; }
   .player-center.amrap-active .amrap-count{ font-size:26px; }
   .player-center.amrap-active .amrap-count-wrap{ min-width:50px; }
   .player-center.amrap-active .amrap-btn.plus{ height:44px; padding:0 16px; font-size:13px; }
   .player-center.amrap-active .amrap-btn.minus{ width:38px; height:38px; font-size:16px; }
+
+  /* AMRAP specifically: a horizontal countdown bar instead of the ring, and
+     the full exercise list shown with no internal scroll cap — relying on
+     the player screen's own outer scroll for the rare case the list is
+     still taller than the viewport. */
+  .player-center.amrap-bar-active .ring-wrap{ display:none; }
+  .player-center.amrap-bar-active .amrap-bar-wrap{ display:flex; }
+  .player-center.amrap-bar-active .exercise-name{
+    max-height:none; overflow-y:visible;
+  }
+  .amrap-bar-wrap{
+    flex-direction:column; align-items:center; width:100%; max-width:340px; flex-shrink:0;
+  }
+  .amrap-bar-time{
+    font-size:38px; font-weight:900; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;
+    margin-bottom:12px;
+  }
+  .amrap-bar-track{
+    width:100%; height:16px; background:var(--surface-2); border-radius:10px; overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .amrap-bar-fill{
+    height:100%; width:100%; background:var(--grad); border-radius:10px;
+    transition:width 0.2s linear;
+  }
+
+  /* Any screen showing a full multi-exercise list (Ladder rounds, EMOM's
+     "all together" mode, and AMRAP above) shows every exercise with no
+     internal scroll cap — same reasoning as the AMRAP rule above. */
+  .player-center.full-list-active .exercise-name{
+    max-height:none; overflow-y:visible;
+  }
 
   .player-controls{
     display:flex; align-items:center; justify-content:center; gap:20px;
@@ -1338,8 +1393,21 @@
       <button class="quit finish" id="finishBtn">Finish</button>
     </div>
     <div class="player-center" id="playerCenter">
+      <div class="player-info-row hidden" id="playerInfoRow">
+        <div class="player-info-block hidden" id="playerRoundBlock">
+          <div class="player-info-label" id="playerRoundLabel">Round</div>
+          <div class="player-info-value" id="playerRoundValue">1/5</div>
+        </div>
+        <div class="player-info-block hidden" id="playerRepBlock">
+          <div class="player-info-label">Rep Target</div>
+          <div class="player-info-value" id="playerRepValue">10</div>
+        </div>
+      </div>
+      <div class="player-exercise-block">
+        <div class="exercise-name" id="exerciseName"></div>
+      </div>
       <div class="phase-label" id="phaseLabel">GET READY</div>
-      <div class="ring-wrap">
+      <div class="ring-wrap" id="ringWrap">
         <svg viewBox="0 0 120 120" overflow="visible">
           <defs>
             <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -1355,7 +1423,12 @@
           <div class="time-big" id="timeBig">--</div>
         </div>
       </div>
-      <div class="exercise-name" id="exerciseName"></div>
+      <div class="amrap-bar-wrap hidden" id="amrapBarWrap">
+        <div class="amrap-bar-time" id="amrapBarTime">--:--</div>
+        <div class="amrap-bar-track">
+          <div class="amrap-bar-fill" id="amrapBarFill"></div>
+        </div>
+      </div>
       <div class="rep-target hidden" id="repTargetEl"></div>
       <div class="next-up" id="nextUp"></div>
       <div class="amrap-round-row hidden" id="amrapRoundRow">
@@ -4546,11 +4619,11 @@
       var s = w.settings;
       w.exercises.forEach(function(ex, exIdx){
         for(var r=1; r<=s.rounds; r++){
-          out.push({ label: ex.name, sub: "Round "+r+"/"+s.rounds, duration: s.workSec, kind:"work" });
+          out.push({ label: ex.name, sub: "Round "+r+"/"+s.rounds, duration: s.workSec, kind:"work", roundLabel:"Round", roundCurrent:r, roundTotal:s.rounds });
           var isLastRoundOfEx = (r === s.rounds);
           var isLastEx = (exIdx === w.exercises.length - 1);
           if(!(isLastRoundOfEx && isLastEx)){
-            out.push({ label:"Rest", sub: isLastRoundOfEx ? "Next: " + (w.exercises[exIdx+1] ? w.exercises[exIdx+1].name : "") : "Next: "+ex.name, duration:s.restSec, kind:"rest" });
+            out.push({ label:"Rest", sub: isLastRoundOfEx ? "Next: " + (w.exercises[exIdx+1] ? w.exercises[exIdx+1].name : "") : "Next: "+ex.name, duration:s.restSec, kind:"rest", roundLabel:"Round", roundCurrent:r, roundTotal:s.rounds });
           }
         }
       });
@@ -4558,12 +4631,12 @@
       var s2 = w.settings;
       for(var round=1; round<=s2.rounds; round++){
         w.exercises.forEach(function(ex, exIdx){
-          out.push({ label: ex.name, sub: "Round "+round+"/"+s2.rounds, duration: ex.workSec, kind:"work" });
+          out.push({ label: ex.name, sub: "Round "+round+"/"+s2.rounds, duration: ex.workSec, kind:"work", roundLabel:"Round", roundCurrent:round, roundTotal:s2.rounds });
           var isLastExInRound = (exIdx === w.exercises.length - 1);
           if(!isLastExInRound){
-            out.push({ label:"Rest", sub:"Next: "+w.exercises[exIdx+1].name, duration: ex.restSec, kind:"rest" });
+            out.push({ label:"Rest", sub:"Next: "+w.exercises[exIdx+1].name, duration: ex.restSec, kind:"rest", roundLabel:"Round", roundCurrent:round, roundTotal:s2.rounds });
           } else if(round < s2.rounds){
-            out.push({ label:"Rest", sub:"Round "+(round+1)+" next", duration: s2.restBetween, kind:"rest" });
+            out.push({ label:"Rest", sub:"Round "+(round+1)+" next", duration: s2.restBetween, kind:"rest", roundLabel:"Round", roundCurrent:round, roundTotal:s2.rounds });
           }
         });
       }
@@ -4571,12 +4644,12 @@
       var s3 = w.settings;
       for(var rd=1; rd<=s3.rounds; rd++){
         w.exercises.forEach(function(ex, exIdx){
-          out.push({ label: ex.name, sub: "Round "+rd+"/"+s3.rounds, duration: ex.workSec, kind:"work", repTarget: ex.repTarget || null });
+          out.push({ label: ex.name, sub: "Round "+rd+"/"+s3.rounds, duration: ex.workSec, kind:"work", repTarget: ex.repTarget || null, roundLabel:"Round", roundCurrent:rd, roundTotal:s3.rounds });
           var isLast = (exIdx === w.exercises.length - 1);
           if(!isLast){
-            out.push({ label:"Transition", sub:"Next: "+w.exercises[exIdx+1].name, duration:s3.transitionSec, kind:"rest" });
+            out.push({ label:"Transition", sub:"Next: "+w.exercises[exIdx+1].name, duration:s3.transitionSec, kind:"rest", roundLabel:"Round", roundCurrent:rd, roundTotal:s3.rounds });
           } else if(rd < s3.rounds){
-            out.push({ label:"Rest", sub:"Round "+(rd+1)+" next", duration:s3.restBetween, kind:"rest" });
+            out.push({ label:"Rest", sub:"Round "+(rd+1)+" next", duration:s3.restBetween, kind:"rest", roundLabel:"Round", roundCurrent:rd, roundTotal:s3.rounds });
           }
         });
       }
@@ -4594,13 +4667,13 @@
         for(var m=1; m<=s4.rounds; m++){
           out.push({
             label: "EMOM", sub: "Minute "+m+"/"+s4.rounds, duration: s4.intervalSec, kind:"work",
-            isEmomMulti: true, exerciseList: emomList
+            isEmomMulti: true, exerciseList: emomList, roundLabel:"Minute", roundCurrent:m, roundTotal:s4.rounds
           });
         }
       } else {
         for(var m2=1; m2<=s4.rounds; m2++){
           var ex4 = w.exercises[(m2-1) % w.exercises.length];
-          out.push({ label: ex4.name, sub: "Minute "+m2+"/"+s4.rounds, duration: s4.intervalSec, kind:"work", repTarget: ex4.repTarget || null });
+          out.push({ label: ex4.name, sub: "Minute "+m2+"/"+s4.rounds, duration: s4.intervalSec, kind:"work", repTarget: ex4.repTarget || null, roundLabel:"Minute", roundCurrent:m2, roundTotal:s4.rounds });
         }
       }
     } else if(w.type === "amrap"){
@@ -4622,7 +4695,8 @@
             kind: "work",
             isManualSet: true,
             repTarget: ex.repTarget || null,
-            weight: ex.weight || null
+            weight: ex.weight || null,
+            roundLabel: "Set", roundCurrent: st, roundTotal: ex.sets
           });
           var isLastSetOfEx = (st === ex.sets);
           var isLastEx = (exIdx === w.exercises.length - 1);
@@ -4631,7 +4705,8 @@
               label: "Rest",
               sub: isLastSetOfEx ? ("Next: " + (w.exercises[exIdx+1] ? w.exercises[exIdx+1].name : "")) : ("Set " + (st+1) + " next"),
               duration: ex.restSec,
-              kind: "rest"
+              kind: "rest",
+              roundLabel: "Set", roundCurrent: st, roundTotal: ex.sets
             });
           }
         }
@@ -4653,7 +4728,8 @@
           kind: "work",
           isManualSet: true,
           isLadderRound: true,
-          rungExerciseList: w.exercises.map(function(ex){ return { name: ex.name, reps: reps }; })
+          rungExerciseList: w.exercises.map(function(ex){ return { name: ex.name, reps: reps }; }),
+          roundLabel: "Round", roundCurrent: rungIdx+1, roundTotal: rungs.length
         });
         var isLastRung = (rungIdx === rungs.length - 1);
         if(!isLastRung){
@@ -4661,7 +4737,8 @@
             label: "Rest",
             sub: "Round " + (rungIdx+2) + " next — " + rungs[rungIdx+1] + " reps",
             duration: sLad.restBetween,
-            kind: "rest"
+            kind: "rest",
+            roundLabel: "Round", roundCurrent: rungIdx+1, roundTotal: rungs.length
           });
         }
       });
@@ -4688,7 +4765,17 @@
   var repTargetEl = document.getElementById("repTargetEl");
   var nextUpEl = document.getElementById("nextUp");
   var roundInfoEl = document.getElementById("roundInfo");
+  var playerInfoRow = document.getElementById("playerInfoRow");
+  var playerRoundBlock = document.getElementById("playerRoundBlock");
+  var playerRoundLabel = document.getElementById("playerRoundLabel");
+  var playerRoundValue = document.getElementById("playerRoundValue");
+  var playerRepBlock = document.getElementById("playerRepBlock");
+  var playerRepValue = document.getElementById("playerRepValue");
   var ringFg = document.getElementById("ringFg");
+  var ringWrapEl = document.getElementById("ringWrap");
+  var amrapBarWrap = document.getElementById("amrapBarWrap");
+  var amrapBarTime = document.getElementById("amrapBarTime");
+  var amrapBarFill = document.getElementById("amrapBarFill");
   var pauseBtn = document.getElementById("pauseBtn");
   var amrapRoundRow = document.getElementById("amrapRoundRow");
   var amrapCountEl = document.getElementById("amrapCount");
@@ -4784,15 +4871,19 @@
     var nextIv = intervals[currentIndex+1];
     var previewIv = (iv.kind === "prepare") ? nextIv : iv;
     var isAmrapContext = !!(iv.isAmrap || (previewIv && previewIv.isAmrap));
-    var isLadderRoundContext = !!(iv.isLadderRound || (previewIv && previewIv.isLadderRound));
+    var isLadderRoundContext = !!iv.isLadderRound;
     var isEmomMultiContext = !!(iv.isEmomMulti || (previewIv && previewIv.isEmomMulti));
+    var isBarContext = isAmrapContext || isEmomMultiContext;
     document.getElementById("playerCenter").classList.toggle("amrap-active", isAmrapContext || isLadderRoundContext || isEmomMultiContext);
+    document.getElementById("playerCenter").classList.toggle("amrap-bar-active", isBarContext);
+    document.getElementById("playerCenter").classList.toggle("full-list-active", isAmrapContext || isLadderRoundContext || isEmomMultiContext);
+    ringWrapEl.classList.toggle("hidden", isBarContext);
+    amrapBarWrap.classList.toggle("hidden", !isBarContext);
 
     var label;
     if(iv.kind === "prepare") label = "GET READY";
     else if(iv.isAmrap) label = "AMRAP";
     else if(iv.isLadderRound) label = "ROUND";
-    else if(iv.isEmomMulti) label = "EMOM";
     else if(iv.isManualSet) label = "SET";
     else if(iv.kind === "work") label = "WORK";
     else label = "REST";
@@ -4803,8 +4894,8 @@
     manualSetRow.classList.toggle("hidden", !iv.isManualSet);
     completeSetBtn.textContent = iv.isLadderRound ? "Complete Round" : "Complete Set";
 
-    if(previewIv && previewIv.isLadderRound){
-      exerciseNameEl.innerHTML = previewIv.rungExerciseList.map(function(e){
+    if(iv.isLadderRound){
+      exerciseNameEl.innerHTML = iv.rungExerciseList.map(function(e){
         return escapeHtml(e.name) + ' <b>&middot; ' + e.reps + (e.reps === 1 ? " rep" : " reps") + '</b>';
       }).join("<br>");
     } else if(previewIv && previewIv.exerciseList){
@@ -4812,13 +4903,27 @@
     } else {
       exerciseNameEl.textContent = previewIv ? previewIv.label : "";
     }
-    roundInfoEl.textContent = iv.sub || "";
 
-    if(previewIv && !previewIv.isAmrap && !previewIv.isLadderRound && !previewIv.isEmomMulti && (previewIv.repTarget || previewIv.weight)){
-      var targetParts = [];
-      if(previewIv.weight) targetParts.push(String(previewIv.weight));
-      if(previewIv.repTarget) targetParts.push(previewIv.repTarget + (previewIv.repTarget === 1 ? " rep" : " reps"));
-      repTargetEl.textContent = "Target: " + targetParts.join(" × ");
+    // Round/Set + Rep Target info blocks at the top of the player. Whichever
+    // of the two actually has content shows; if only one does, it's centered
+    // instead of sitting awkwardly to one side.
+    var hasRoundInfo = !!(previewIv && previewIv.roundLabel && previewIv.roundTotal);
+    var hasRepInfo = !!(previewIv && !previewIv.isAmrap && !previewIv.isLadderRound && !previewIv.isEmomMulti && previewIv.repTarget);
+    playerRoundBlock.classList.toggle("hidden", !hasRoundInfo);
+    playerRepBlock.classList.toggle("hidden", !hasRepInfo);
+    playerInfoRow.classList.toggle("hidden", !hasRoundInfo && !hasRepInfo);
+    playerInfoRow.classList.toggle("centered", hasRoundInfo !== hasRepInfo);
+    if(hasRoundInfo){
+      playerRoundLabel.textContent = previewIv.roundLabel;
+      playerRoundValue.textContent = previewIv.roundCurrent + "/" + previewIv.roundTotal;
+    }
+    if(hasRepInfo){
+      playerRepValue.textContent = previewIv.repTarget + (previewIv.repTarget === 1 ? " rep" : " reps");
+    }
+
+    // The old pill now only ever shows weight (rep target moved to the block above).
+    if(previewIv && !previewIv.isAmrap && !previewIv.isLadderRound && !previewIv.isEmomMulti && previewIv.weight){
+      repTargetEl.textContent = "Weight: " + previewIv.weight;
       repTargetEl.classList.remove("hidden");
     } else {
       repTargetEl.classList.add("hidden");
@@ -4841,8 +4946,21 @@
       }
     }
     updateRing(iv.duration, iv.duration);
-    timeBigEl.textContent = Math.ceil(remaining);
+    updateAmrapBar(iv.duration, iv.duration);
+    timeBigEl.textContent = formatTimeBig(iv, remaining);
     updatePauseIcon();
+  }
+
+  // AMRAP countdowns can run many minutes, so raw seconds (e.g. "487") are hard
+  // to read at a glance — format those as M:SS instead (e.g. "8:07"), always
+  // showing the minutes digit even under a minute (e.g. "0:59"). Every other
+  // interval type keeps the plain seconds count, since those are short enough
+  // that seconds alone are still the quickest read.
+  function formatTimeBig(iv, remainingSec){
+    var secs = Math.ceil(remainingSec);
+    var isMMSS = !!(iv && iv.isAmrap);
+    timeBigEl.classList.toggle("mmss", isMMSS);
+    return isMMSS ? secToMMSS(secs) : String(secs);
   }
 
   function updateRing(remainingSec, totalSec){
@@ -4850,6 +4968,14 @@
     var offset = RING_CIRC * (1-frac);
     ringFg.style.strokeDasharray = RING_CIRC;
     ringFg.style.strokeDashoffset = offset;
+  }
+
+  // AMRAP's horizontal bar starts full and its right edge recedes leftward
+  // as time runs out, reaching empty at 0 remaining.
+  function updateAmrapBar(remainingSec, totalSec){
+    var frac = totalSec>0 ? Math.max(0, Math.min(1, remainingSec/totalSec)) : 0;
+    amrapBarFill.style.width = (frac*100) + "%";
+    amrapBarTime.textContent = secToMMSS(Math.ceil(Math.max(0, remainingSec)));
   }
 
   var beepedCountdownFor = -1;
@@ -4874,8 +5000,9 @@
       // logging a duplicate history entry on every single frame.
       if(rafId === null) return;
     } else {
-      timeBigEl.textContent = Math.ceil(remaining);
+      timeBigEl.textContent = formatTimeBig(iv, remaining);
       updateRing(remaining, iv.duration);
+      updateAmrapBar(remaining, iv.duration);
       var ceilRem = Math.ceil(remaining);
       if(ceilRem <= 3 && ceilRem >= 1 && beepedCountdownFor !== currentIndex*1000+ceilRem){
         beepedCountdownFor = currentIndex*1000+ceilRem;
