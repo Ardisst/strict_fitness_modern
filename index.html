@@ -3229,6 +3229,7 @@
     if(w.type === "circuit" || w.type === "timed" || w.type === "warmup" || w.type === "hyrox" || w.type === "calisthenics"){
       var d = secToMMSS(ex.workSec);
       if(ex.repTarget) d += " · " + ex.repTarget + " reps";
+      if((w.type === "circuit" || w.type === "timed") && ex.weight) d += " · " + ex.weight;
       return d;
     }
     if(w.type === "amrap" && ex.repTarget) return ex.repTarget + " reps";
@@ -4348,8 +4349,20 @@
           '<div class="row2">' +
             field("Work", "ex_work_"+idx, ex.workSec, 5, 0, true) +
             field("Rep Target", "ex_reps_"+idx, ex.repTarget, 1) +
+          '</div>' +
+          '<div class="row2">' +
+            field("Weight (optional)", "ex_weight_"+idx, ex.weight, 5) +
           '</div>';
-      } else if(currentType === "timed" || currentType === "warmup" || currentType === "hyrox" || currentType === "calisthenics"){
+      } else if(currentType === "timed"){
+        perExerciseFields =
+          '<div class="row2">' +
+            field("Duration", "ex_work_"+idx, ex.workSec, 5, 0, true) +
+            field("Rep Target", "ex_reps_"+idx, ex.repTarget, 1) +
+          '</div>' +
+          '<div class="row2">' +
+            field("Weight (optional)", "ex_weight_"+idx, ex.weight, 5) +
+          '</div>';
+      } else if(currentType === "warmup" || currentType === "hyrox" || currentType === "calisthenics"){
         perExerciseFields =
           '<div class="row2">' +
             field("Duration", "ex_work_"+idx, ex.workSec, 5, 0, true) +
@@ -4644,7 +4657,7 @@
       var s3 = w.settings;
       for(var rd=1; rd<=s3.rounds; rd++){
         w.exercises.forEach(function(ex, exIdx){
-          out.push({ label: ex.name, sub: "Round "+rd+"/"+s3.rounds, duration: ex.workSec, kind:"work", repTarget: ex.repTarget || null, roundLabel:"Round", roundCurrent:rd, roundTotal:s3.rounds });
+          out.push({ label: ex.name, sub: "Round "+rd+"/"+s3.rounds, duration: ex.workSec, kind:"work", repTarget: ex.repTarget || null, weight: ex.weight || null, roundLabel:"Round", roundCurrent:rd, roundTotal:s3.rounds });
           var isLast = (exIdx === w.exercises.length - 1);
           if(!isLast){
             out.push({ label:"Transition", sub:"Next: "+w.exercises[exIdx+1].name, duration:s3.transitionSec, kind:"rest", roundLabel:"Round", roundCurrent:rd, roundTotal:s3.rounds });
@@ -4653,7 +4666,12 @@
           }
         });
       }
-    } else if(w.type === "timed" || w.type === "warmup" || w.type === "hyrox" || w.type === "calisthenics"){
+    } else if(w.type === "timed"){
+      w.exercises.forEach(function(ex, idx){
+        var next = w.exercises[idx+1];
+        out.push({ label: ex.name, sub: next ? "" : "", duration: ex.workSec, kind:"work", repTarget: ex.repTarget || null, weight: ex.weight || null });
+      });
+    } else if(w.type === "warmup" || w.type === "hyrox" || w.type === "calisthenics"){
       w.exercises.forEach(function(ex, idx){
         var next = w.exercises[idx+1];
         out.push({ label: ex.name, sub: next ? "" : "", duration: ex.workSec, kind:"work", repTarget: ex.repTarget || null });
