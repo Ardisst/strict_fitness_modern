@@ -517,6 +517,10 @@
     flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
     padding:12px 20px; overflow-y:auto; min-height:0;
   }
+  .player-center.ladder-round-active{
+    justify-content:flex-start; padding-top:28px;
+  }
+  .player-center.ladder-round-active .manual-set-row{ margin-top:36px; }
   .player-info-row{
     display:flex; gap:10px; width:100%; max-width:340px; margin-bottom:12px; justify-content:center; flex-shrink:0;
   }
@@ -532,13 +536,13 @@
   .player-info-value{ font-size:19px; font-weight:900; color:var(--work); font-variant-numeric:tabular-nums; }
   .player-exercise-block{
     width:100%; max-width:340px; background:var(--surface); border:1px solid var(--line); border-radius:14px;
-    padding:12px 16px; box-shadow:var(--shadow-card); margin-bottom:14px; flex-shrink:0;
+    padding:12px 16px; box-shadow:var(--shadow-card); margin-bottom:10px; flex-shrink:0;
   }
   .phase-label{
     font-size:15px; font-weight:800; letter-spacing:0.14em; text-transform:uppercase;
-    margin-bottom:14px; flex-shrink:0;
+    margin-bottom:10px; flex-shrink:0;
   }
-  .ring-wrap{ position:relative; width:min(66vw, 258px); height:min(66vw,258px); flex-shrink:0; }
+  .ring-wrap{ position:relative; width:min(60vw, 232px); height:min(60vw,232px); flex-shrink:0; }
   .ring-wrap svg{ width:100%; height:100%; transform:rotate(-90deg); overflow:visible; }
   .ring-bg{ fill:none; stroke:var(--surface-2); stroke-width:10; }
   .ring-fg{ fill:none; stroke-width:10; stroke-linecap:round; transition:stroke 0.3s ease; }
@@ -552,9 +556,9 @@
     flex-shrink:0;
   }
   .rep-target{
-    margin-top:12px; font-size:18px; font-weight:800; color:var(--work);
+    margin-top:8px; font-size:15px; font-weight:800; color:var(--work);
     background:rgba(77,166,255,0.15); border:1.5px solid rgba(77,166,255,0.35);
-    padding:8px 18px; border-radius:20px; flex-shrink:0;
+    padding:6px 16px; border-radius:18px; flex-shrink:0;
   }
   .next-up{
     margin-top:16px; font-size:21px; font-weight:700; color:var(--text-dim); text-align:center;
@@ -2279,11 +2283,12 @@
     osc.start(now);
     osc.stop(now + dur);
   }
-  function beepCountdown(){ beep(880, 0.09, 0.4); }
-  function beepCountdownFinal(){ beep(1175, 0.16, 0.6); }
-  function beepGo(){ beep(1320, 0.16, 0.5); }
-  function beepRest(){ beep(440, 0.16, 0.45); }
-  function beepDone(){ beep(660,0.12,0.45); setTimeout(function(){beep(990,0.2,0.5);}, 140); }
+  function beepCountdown(){ beep(880, 0.09, 0.85); }
+  function beepCountdownFinal(){ beep(1175, 0.18, 1); }
+  function beepGo(){ beep(1320, 0.18, 0.95); }
+  function beepRest(){ beep(440, 0.18, 0.85); }
+  function beepDone(){ beep(660,0.14,0.85); setTimeout(function(){beep(990,0.22,0.95);}, 140); }
+  function beepWarning(){ beep(660, 0.14, 0.85); }
 
   var soundToggleBtn = document.getElementById("soundToggleBtn");
   var soundToggleIcon = document.getElementById("soundToggleIcon");
@@ -3246,6 +3251,9 @@
       (w.bodyParts && w.bodyParts.length ? '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px;">' + bodyPartTagsHTML(w.bodyParts) + '</div>' : '');
 
     if(w.type === "multi"){
+      var muSettings = w.settings || {};
+      html += '<div class="field-label">Settings</div>' +
+        '<div class="helper-text" style="margin-bottom:20px;">' + secToMMSS(muSettings.restBetween || 120) + ' rest between each section (for setup/transition)</div>';
       (w.sections || []).forEach(function(section, sIdx){
         html +=
           '<div style="display:flex; align-items:center; gap:8px; margin:' + (sIdx===0 ? "0" : "22px") + ' 0 10px 0;">' +
@@ -3869,7 +3877,9 @@
     warmup: {},
     hyrox: {},
     weightlifting: {},
-    ladder: { startReps:10, endReps:2, step:2, restBetween:60 }
+    ladder: { startReps:10, endReps:2, step:2, restBetween:60 },
+    calisthenics: {},
+    multi: { restBetween: 120 }
   };
 
   // The official HYROX race sequence: 8 x 1km runs alternating with 8 fixed
@@ -3920,8 +3930,10 @@
     document.getElementById("sectionLabelFieldLabel").classList.add("hidden");
     document.getElementById("sectionLabelInput").classList.add("hidden");
     setMultiTypeOptionVisible(true);
-    if(existingWorkout && existingWorkout.type !== "multi"){
+    if(existingWorkout){
       typeSettingsState[existingWorkout.type] = Object.assign({}, typeSettingsState[existingWorkout.type], existingWorkout.settings || {});
+    }
+    if(existingWorkout && existingWorkout.type !== "multi"){
       exercises = JSON.parse(JSON.stringify(existingWorkout.exercises));
     } else {
       exercises = [];
@@ -4130,7 +4142,14 @@
       return;
     }
     if(currentType === "multi"){
-      typeSettingsEl.innerHTML = '<div class="helper-text">Build this workout out of sections — each one can be a different type (Warmup, HIIT, Weightlifting, etc.) with its own settings and exercises. They\'ll play back in order, one after another.</div>';
+      var sMulti = typeSettingsState.multi;
+      typeSettingsEl.innerHTML =
+        '<div class="helper-text" style="margin-bottom:14px;">Build this workout out of sections — each one can be a different type (Warmup, HIIT, Weightlifting, etc.) with its own settings and exercises. They\'ll play back in order, one after another.</div>' +
+        '<div class="row2">' +
+          field("Rest Between Sections", "mu_restbetween", sMulti.restBetween, 5, 0, true) +
+        '</div>' +
+        '<div class="helper-text">Gives you time to set up the next section — swap weights, grab a mat, whatever it needs. Applies automatically between every section; there\'s none before the first or after the last.</div>';
+      bindTypeSettingInputs();
       exercisesLabelEl.style.display = "none";
       addExerciseBtn.classList.add("hidden");
       exerciseListWrap.innerHTML = "";
@@ -4293,9 +4312,10 @@
       e_interval:["emom","intervalSec"], e_rounds:["emom","rounds"],
       a_cap:["amrap","capMin"],
       l_start:["ladder","startReps"], l_end:["ladder","endReps"], l_step:["ladder","step"],
-      l_restbetween:["ladder","restBetween"]
+      l_restbetween:["ladder","restBetween"],
+      mu_restbetween:["multi","restBetween"]
     };
-    var timeIds = { t_work:1, t_rest:1, h_restbetween:1, c_transition:1, c_restbetween:1, e_interval:1, l_restbetween:1 };
+    var timeIds = { t_work:1, t_rest:1, h_restbetween:1, c_transition:1, c_restbetween:1, e_interval:1, l_restbetween:1, mu_restbetween:1 };
     Object.keys(map).forEach(function(id){
       var el = document.getElementById(id);
       if(!el) return;
@@ -4510,7 +4530,7 @@
 
   function validateBuilder(){
     if(builderMode === "workout" && currentType === "multi"){
-      var okMulti = multiSections.length > 0;
+      var okMulti = multiSections.length > 0 && !!typeSettingsState.multi.restBetween;
       saveWorkoutBtn.disabled = !okMulti;
       return okMulti;
     }
@@ -4566,7 +4586,7 @@
       favorite: existing ? !!existing.favorite : false
     };
     if(currentType === "multi"){
-      workout.settings = {};
+      workout.settings = JSON.parse(JSON.stringify(typeSettingsState.multi));
       workout.exercises = [];
       workout.sections = JSON.parse(JSON.stringify(multiSections));
     } else {
@@ -4613,11 +4633,21 @@
   // Every workout compiles to a flat list of {label, sub, duration, kind} where kind is 'prepare'|'work'|'rest'
   function generateIntervals(w){
     if(w.type === "multi"){
+      var restBetweenSections = (w.settings && w.settings.restBetween) || 120;
       var combined = [];
       (w.sections || []).forEach(function(section, idx){
         var sectionIntervals = generateIntervals(section);
-        if(idx > 0 && sectionIntervals[0] && sectionIntervals[0].kind === "prepare"){
-          sectionIntervals[0].label = "Get Ready: " + (section.label || TYPE_LABELS[section.type] || "Next Section");
+        if(idx > 0){
+          var nextLabel = section.label || TYPE_LABELS[section.type] || "Next Section";
+          combined.push({
+            label: "Rest",
+            sub: "Setup for: " + nextLabel,
+            duration: restBetweenSections,
+            kind: "rest"
+          });
+          if(sectionIntervals[0] && sectionIntervals[0].kind === "prepare"){
+            sectionIntervals[0].label = "Get Ready: " + nextLabel;
+          }
         }
         sectionIntervals.forEach(function(iv){ iv.sectionLabel = section.label || TYPE_LABELS[section.type]; });
         combined = combined.concat(sectionIntervals);
@@ -4892,21 +4922,22 @@
     var isLadderRoundContext = !!iv.isLadderRound;
     var isEmomMultiContext = !!(iv.isEmomMulti || (previewIv && previewIv.isEmomMulti));
     var isBarContext = isAmrapContext || isEmomMultiContext;
-    document.getElementById("playerCenter").classList.toggle("amrap-active", isAmrapContext || isLadderRoundContext || isEmomMultiContext);
+    document.getElementById("playerCenter").classList.toggle("amrap-active", isAmrapContext || isEmomMultiContext);
     document.getElementById("playerCenter").classList.toggle("amrap-bar-active", isBarContext);
     document.getElementById("playerCenter").classList.toggle("full-list-active", isAmrapContext || isLadderRoundContext || isEmomMultiContext);
+    document.getElementById("playerCenter").classList.toggle("ladder-round-active", isLadderRoundContext);
     ringWrapEl.classList.toggle("hidden", isBarContext);
     amrapBarWrap.classList.toggle("hidden", !isBarContext);
 
     var label;
     if(iv.kind === "prepare") label = "GET READY";
     else if(iv.isAmrap) label = "AMRAP";
-    else if(iv.isLadderRound) label = "ROUND";
     else if(iv.isManualSet) label = "SET";
     else if(iv.kind === "work") label = "WORK";
     else label = "REST";
     phaseLabelEl.textContent = label;
     phaseLabelEl.style.color = currentColorVar(iv.kind);
+    phaseLabelEl.classList.toggle("hidden", isLadderRoundContext);
 
     document.getElementById("playerCenter").classList.toggle("manual-set-active", !!iv.isManualSet);
     manualSetRow.classList.toggle("hidden", !iv.isManualSet);
@@ -5022,6 +5053,10 @@
       updateRing(remaining, iv.duration);
       updateAmrapBar(remaining, iv.duration);
       var ceilRem = Math.ceil(remaining);
+      if(iv.kind === "rest" && iv.duration > 30 && ceilRem === 15 && beepedCountdownFor !== currentIndex*1000+ceilRem){
+        beepedCountdownFor = currentIndex*1000+ceilRem;
+        beepWarning();
+      }
       if(ceilRem <= 3 && ceilRem >= 1 && beepedCountdownFor !== currentIndex*1000+ceilRem){
         beepedCountdownFor = currentIndex*1000+ceilRem;
         if(ceilRem === 1) beepCountdownFinal(); else beepCountdown();
